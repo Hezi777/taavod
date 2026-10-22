@@ -1,0 +1,23 @@
+{
+  "source": "https://raw.githubusercontent.com/devrimgunduz/pagila/ce6e114236bb828e5ec0dc835f65f1bf1b9179f5/",
+  "revision": "ce6e114236bb828e5ec0dc835f65f1bf1b9179f5",
+  "license": "PostgreSQL License",
+  "sha256": "e7b0b4cb236dacff81bc474a40ebc929ddeb07790f9ba903b545788fd9b315db",
+  "tables": {
+    "actor": 200,
+    "address": 1003,
+    "category": 16,
+    "city": 600,
+    "country": 109,
+    "customer": 999,
+    "film": 1000,
+    "film_actor": 5462,
+    "film_category": 2367,
+    "inventory": 4581,
+    "language": 6,
+    "payment": 51061,
+    "rental": 51805,
+    "staff": 1500,
+    "store": 500
+  }
+}

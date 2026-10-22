@@ -1,0 +1,414 @@
+{
+  "meta": {
+    "name": "Taavod Cyan and Navy",
+    "description": "Reference-led learning and career workspace; approved animated clay portrait; user-selected cyan and navy.",
+    "source_references": [
+      "User reference images 1\u20134: white pill and list interfaces",
+      "User reference image 5: soft finance dashboard",
+      "https://bloub.vercel.app/",
+      "https://github.com/jeremy-prt/bloub"
+    ],
+    "created_at": "2026-10-21",
+    "updated_at": "2026-10-22"
+  },
+  "design_system": {
+    "color": {
+      "palette_type": "cyan and navy with white and pale ice surfaces",
+      "primary": {
+        "hex": "#102B46",
+        "role": "Text, structure and focus surface"
+      },
+      "secondary": {
+        "hex": "#E5F7FB",
+        "role": "Inset surfaces and selected pills"
+      },
+      "accent": {
+        "hex": "#13B8D5",
+        "role": "Actions, brand and interactive feedback"
+      },
+      "neutral": {
+        "scale": [
+          "#ffffff",
+          "#f8f8fa",
+          "#f1f1f4",
+          "#e9e9ed",
+          "#aaa8b4",
+          "#707078",
+          "#46464e",
+          "#25252a"
+        ],
+        "usage": "White work panels on pale gray; navy text and cyan accents"
+      },
+      "semantic": {
+        "success": "#5a8f71",
+        "warning": "#a98746",
+        "error": "#c94343",
+        "info": "#147F9E"
+      },
+      "surface": {
+        "background": "#F3F4F7",
+        "card": "#ffffff",
+        "elevated": "#ffffff"
+      },
+      "contrast_strategy": "dark-on-light dominant; neutral depth with visible keyboard focus"
+    },
+    "typography": {
+      "type_scale": {
+        "display": {
+          "size": "46px",
+          "weight": 600,
+          "line_height": 1.12,
+          "tracking": "-2px"
+        },
+        "heading_1": {
+          "size": "34px",
+          "weight": 600,
+          "line_height": 1.3,
+          "tracking": "-1.3px"
+        },
+        "heading_2": {
+          "size": "24px",
+          "weight": 600,
+          "line_height": 1.4,
+          "tracking": "-.8px"
+        },
+        "heading_3": {
+          "size": "18px",
+          "weight": 600,
+          "line_height": 1.4,
+          "tracking": "-.5px"
+        },
+        "body": {
+          "size": "16px",
+          "weight": 400,
+          "line_height": 1.7,
+          "tracking": "-.015em"
+        },
+        "body_small": {
+          "size": "14px",
+          "weight": 400,
+          "line_height": 1.7,
+          "tracking": "-.015em"
+        },
+        "caption": {
+          "size": "12px",
+          "weight": 400,
+          "line_height": 1.6,
+          "tracking": "normal"
+        },
+        "overline": {
+          "size": "11px",
+          "weight": 500,
+          "line_height": 1.5,
+          "tracking": ".015em"
+        }
+      },
+      "font_families": {
+        "heading": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+        "body": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+        "mono": "ui-monospace, SFMono-Regular, Menlo, monospace"
+      },
+      "font_style_notes": "Apple system sans on macOS; large plain headings, no decorative fonts"
+    },
+    "spacing": {
+      "base_unit": "4px",
+      "scale": [
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        40,
+        48
+      ],
+      "content_density": "comfortable",
+      "section_rhythm": "24\u201332px between panels; 16\u201324px inside lists"
+    },
+    "layout": {
+      "grid_system": "Responsive CSS grids with persistent desktop sidebar",
+      "max_content_width": "1500px",
+      "columns": "2 main columns on dashboard; 3 learning cards at wide widths",
+      "gutter": "22px",
+      "breakpoints": {
+        "mobile": "760px",
+        "tablet": "950px",
+        "wide": "1450px"
+      },
+      "alignment_tendency": "strict grid with asymmetric dashboard emphasis"
+    },
+    "shape": {
+      "border_radius": {
+        "small": "12px",
+        "medium": "18px",
+        "large": "25px",
+        "pill": "999px"
+      },
+      "border_usage": "subtle 1px; mostly surface separation",
+      "divider_style": "fine neutral lines where grouping needs them"
+    },
+    "elevation": {
+      "shadow_style": "soft diffused",
+      "levels": {
+        "low": "0 2px 3px #20202809",
+        "medium": "0 8px 26px #20202805",
+        "high": "0 24px 90px #16162120"
+      },
+      "depth_cues": "raised pills, inset inputs, matte layered cards"
+    },
+    "iconography": {
+      "style": "simple rounded outline with selective pastel tiles",
+      "stroke_weight": "1.75px",
+      "size_scale": [
+        14,
+        16,
+        18,
+        20,
+        24
+      ],
+      "preferred_set": "Lucide"
+    },
+    "motion": {
+      "easing": "ease-out and cubic interpolation",
+      "duration_scale": {
+        "micro": "160ms",
+        "normal": "240ms",
+        "macro": "450ms"
+      },
+      "entrance_pattern": "subtle opacity or surface feedback",
+      "exit_pattern": "brief fade",
+      "philosophy": "functional UI motion; expressive facial rig, reduced-motion static pose"
+    },
+    "components": {
+      "button_style": "raised white pill or charcoal primary pill",
+      "input_style": "soft gray inset rounded field",
+      "card_style": "white rounded panels with faint shadows",
+      "navigation_pattern": "ChatGPT-like sidebar, active raised row, mobile drawer",
+      "modal_style": "rounded white dialog with soft broad shadow",
+      "list_style": "airy rows with small icons and clear primary text",
+      "component_notes": "shadcn/Radix primitives throughout; avoid colored borders around every card"
+    }
+  },
+  "design_style": {
+    "aesthetic": {
+      "mood": [
+        "calm",
+        "tactile",
+        "personal",
+        "focused"
+      ],
+      "visual_metaphor": "a quiet personal workspace with a small helpful companion",
+      "era_influence": "contemporary Apple desktop interfaces",
+      "genre": "personal productivity",
+      "personality_traits": [
+        "approachable",
+        "precise",
+        "encouraging"
+      ],
+      "adjectives": [
+        "soft",
+        "rounded",
+        "airy",
+        "restrained"
+      ]
+    },
+    "visual_language": {
+      "complexity": "moderate",
+      "ornamentation": "subtle accents",
+      "whitespace_usage": "generous around headings and between work areas",
+      "visual_weight_distribution": "strong headline, light surfaces, small colorful indicators",
+      "focal_strategy": "one portrait-inspired companion and useful primary action",
+      "contrast_level": "high text contrast, subtle surface contrast",
+      "texture_usage": "matte clay character, clean UI surfaces"
+    },
+    "composition": {
+      "hierarchy_method": "typographic hierarchy and spatial grouping",
+      "balance_type": "asymmetric",
+      "flow_direction": "sidebar to headline to weekly work",
+      "grouping_strategy": "related actions in distinct soft panels",
+      "negative_space_role": "reduce visual noise and preserve focus"
+    },
+    "imagery": {
+      "photo_treatment": "source portrait used only for character reference",
+      "illustration_style": "Approved portrait-derived clay artwork, compact curls, side fade and short boxed beard",
+      "graphic_elements": "small pastel icon tiles, narrow gradient accents",
+      "pattern_usage": "none",
+      "image_shape": "isolated floating head"
+    },
+    "interaction_feel": {
+      "feedback_style": "clear state labels, gentle raised controls",
+      "hover_behavior": "small lift on buttons; direct gaze reaction",
+      "transition_personality": "smooth and brief",
+      "loading_style": "honest text and simple spinner",
+      "microinteraction_density": "restrained UI, expressive companion"
+    },
+    "brand_voice_in_ui": {
+      "tone": "friendly and practical",
+      "formality": "conversational professional",
+      "cta_style": "direct invitation",
+      "empty_state_approach": "explain one useful next action",
+      "error_tone": "plain, specific and actionable"
+    }
+  },
+  "visual_effects": {
+    "overview": {
+      "effect_intensity": "subtle-accent",
+      "performance_tier": "medium",
+      "fallback_strategy": "Exact approved neutral portrait while loading, when reduced motion is active, or if graphics are unavailable",
+      "primary_technology": "PixiJS WebGL portrait layers; full Bloub state engine for animation"
+    },
+    "background_effects": {
+      "type": "none",
+      "description": "Solid pearl workspace; static soft gradient on login",
+      "technology": "CSS",
+      "params": {
+        "color_palette": [
+          "#f8f8fa",
+          "#ece5f3"
+        ],
+        "speed": 0,
+        "density": 0,
+        "opacity": 1,
+        "blend_mode": "normal"
+      }
+    },
+    "particle_systems": {
+      "enabled": false,
+      "type": "none",
+      "description": "No particles",
+      "technology": "none",
+      "params": {
+        "count": 0,
+        "shape": "none",
+        "size_range": [
+          0,
+          0
+        ],
+        "movement_pattern": "none",
+        "color_behavior": "none",
+        "interaction": "none",
+        "spawn_area": "none"
+      }
+    },
+    "3d_elements": {
+      "enabled": false,
+      "type": "portrait-inspired companion head",
+      "description": "Superseded approximate mesh; approved clay portrait is rendered as a 2D facial rig.",
+      "technology": "none",
+      "params": {
+        "renderer": "none",
+        "lighting": "baked into approved artwork",
+        "camera": "front-facing artwork",
+        "materials": "none",
+        "geometry": "none",
+        "post_processing": [],
+        "interaction_model": "superseded; see canvas_drawings"
+      }
+    },
+    "shader_effects": {
+      "enabled": false,
+      "type": "none",
+      "description": "Default Pixi textured rendering; no bespoke shader effects",
+      "technology": "none",
+      "params": {
+        "uniforms": [],
+        "vertex_manipulation": "none",
+        "fragment_output": "standard PBR",
+        "noise_type": "none",
+        "distortion": 0
+      }
+    },
+    "scroll_effects": {
+      "parallax": {
+        "enabled": false,
+        "layers": 0,
+        "depth_range": 0,
+        "speed_curve": "none"
+      },
+      "scroll_triggered_animations": {
+        "enabled": false,
+        "trigger_points": [],
+        "animation_type": "none",
+        "scrub_behavior": "none"
+      },
+      "scroll_morphing": {
+        "enabled": false,
+        "description": "No scroll morphing"
+      }
+    },
+    "text_effects": {
+      "type": "none",
+      "description": "Plain readable text",
+      "technology": "CSS",
+      "params": {
+        "split_strategy": "none",
+        "animation_per_unit": "none",
+        "stagger": 0,
+        "effect_style": "none"
+      }
+    },
+    "cursor_effects": {
+      "enabled": false,
+      "type": "none",
+      "description": "Native cursor; companion gaze follows pointer",
+      "params": {
+        "shape": "native",
+        "size": "native",
+        "blend_mode": "normal",
+        "trail": false,
+        "interaction_zone": "none"
+      }
+    },
+    "image_effects": {
+      "type": "facial-puppetry",
+      "description": "Feathered eyelid/mouth keyframes and localized pupil movement; approved haircut, beard and face silhouette preserved",
+      "technology": "PixiJS MeshPlane and sprite masks",
+      "params": {
+        "filter_pipeline": [
+          "alpha masks"
+        ],
+        "hover_transform": "Bloub gaze interpolation",
+        "reveal_animation": "approved artwork shown immediately while renderer loads",
+        "distortion_type": "localized facial deformation"
+      }
+    },
+    "glassmorphism_neumorphism": {
+      "enabled": true,
+      "style": "neumorphic-light",
+      "params": {
+        "blur_radius": "0px",
+        "transparency": 1,
+        "border_treatment": "subtle neutral",
+        "shadow_type": "soft raised controls, inset fields",
+        "light_source_angle": "upper left"
+      }
+    },
+    "canvas_drawings": {
+      "enabled": true,
+      "type": "portrait facial rig",
+      "description": "Approved short-curl/fade portrait with independently composited eyelid and mouth keyframes; local pupil/brow mesh deformation",
+      "technology": "PixiJS 8.22.0",
+      "params": {
+        "draw_method": "MeshPlane plus feathered texture masks",
+        "animation_loop": "Bloub BotEngine.sample(t), capped at 30fps",
+        "color_scheme": "Approved artwork, no recoloring",
+        "responsiveness": "Responsive to companion container, resolution capped at 2",
+        "interaction": "Bloub gaze interpolation, wink, expression transitions and thinking pulse"
+      }
+    },
+    "svg_animations": {
+      "enabled": false,
+      "type": "none",
+      "description": "Bloub motion functions reused on 3D meshes instead of its SVG silhouette",
+      "params": {
+        "animation_method": "none",
+        "path_morphing": false,
+        "stroke_animation": false,
+        "filter_effects": []
+      }
+    },
+    "composite_notes": "Reference screenshots show static 3D/orb imagery and tactile UI. Runtime motion is an implementation choice informed by Bloub and the user request; never inferred as observed animation in still screenshots."
+  }
+}

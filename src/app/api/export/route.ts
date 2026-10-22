@@ -1,0 +1,2 @@
+import {requireUser,apiError} from '@/lib/server/auth';import {listRecords} from '@/lib/server/records';
+export async function GET(){try{const user=await requireUser();const records=await listRecords(user.id);return Response.json({format:'career-helper-v1',exportedAt:new Date().toISOString(),records},{headers:{'Content-Disposition':'attachment; filename="career-helper-export.json"','Cache-Control':'private, no-store'}});}catch(error){return apiError(error);}}
