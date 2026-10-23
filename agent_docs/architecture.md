@@ -1,19 +1,23 @@
 # Architecture
 
-The app shell is `src/components/career/shell.tsx`; workspace routes are grouped under `src/app/(workspace)`. It uses a shared client provider in `src/lib/career-store.tsx`, backed by authenticated `/api/state` requests.
+Taavod is a native macOS app. The active app entry point is `native/Taavod/TaavodApp.swift`; `UI/` contains the shell and career screens, `Learning/` contains study and editor views, `Coach/` contains assistant behavior, and `Core/` owns app state, persistence, runtime packs, and exercise execution.
 
-`src/lib/types.ts` defines the domain records. `src/lib/validation.ts` validates merged records before partial updates. Supabase `career_records` stores versionable typed JSON payloads by `(user_id, kind, id)`; owner policies enforce isolation. Atomic database merges retain unrelated concurrent field edits. Reads paginate beyond the default 1,000-row API limit.
+## Workspace and credentials
 
-`src/lib/server` owns identity, private storage, encryption, provider models and usage. Server-only integration rows have no authenticated/anonymous grants. The AES-GCM key comes from the server environment. Evidence downloads verify ownership and return attachments rather than public storage URLs.
+`WorkspaceStore` persists typed workspace records in SwiftData at `~/Library/Application Support/Taavod/workspace.sqlite`. Each record keeps its domain payload as JSON. The app also keeps downloaded runtimes and migration files under the same Application Support directory. Credentials for Anthropic, Groq, and Tavily are stored in macOS Keychain; never place them in source, runtime files, or workspace records.
 
-Generic curriculum is authored in `src/lib/curriculum.ts` and the Pagila module. PGlite runs isolated fixtures in a browser worker. It must load the untouched copied ESM runtime: Turbopack's rewritten window detection broke the bundled import. `copy-runtime.mjs` prepares assets before development and production builds. Pyodide uses a pinned external runtime/package source.
+The curriculum, practice fixtures, Pagila sample, and runtime manifest are generic bundled resources. Personal workspace data and original source photos do not belong in the repository. The bundled Shih Tzu icon and other approved derived mascot artwork are permitted assets.
 
-SQL exploration uses a separate PGlite instance loaded on demand with the pinned public Pagila core sample (15 tables, 121,209 rows). It never connects to private Supabase. `scripts/prepare-pagila.mjs` derives the compatible seed and introspects its exact key/column metadata for the schema explorer and CodeMirror completion. Exploration executes read-only queries; graded tasks still run fresh independent synthetic fixtures. The modeling, pipeline and metric illustrations calculate their own small examples and do not award practice passes.
+## Exercise boundary
 
-The private workspace layout keeps a single coach session mounted while the compact/expanded visual window opens and closes. Provider/model selection is per request; the authenticated server validates overrides against the chosen provider's model list and keeps API keys server-only. It does not overwrite the provider's saved default model.
+`ExerciseRunner` hosts SQL and Python workers in WebKit. It starts a loopback-only `RuntimeAssetServer` that serves files from the generic resource bundle and the verified runtime cache. The server has no workspace or Keychain routes. Keep learner code and results inside the exercise runtime and app; do not send them to a grading service.
 
-Job search and URL capture are separate from saving. Capture uses validated public DNS pinned to HTTPS requests, validates every redirect, and bounds size/time. Imported text is untrusted reference material. Deduplication keeps identity-bearing query fields and canonicalizes recognized LinkedIn job IDs.
+PGlite and Pyodide are pinned in `Resources/runtime-manifest.json`. `RuntimePacks` downloads each pack on demand to Application Support and verifies every file with its manifest SHA-256 before use. Changes to versions, URLs, hashes, or pack paths must keep the manifest and downloader aligned.
 
-The personal importer is not a generic onboarding fixture. It remains a private setup tool. User accounts without imported state receive onboarding; owner data does not appear in client source or public assets.
+The bundled Pagila database supports local SQL exploration. The runner separates exploratory queries from exercise checks and uses disposable fixtures for checks. Python and SQL run in WebKit, not on a server.
 
-File-backed fallback exists only for troubleshooting outside production. Local Supabase is the default operating backend for this installation. The Vercel linkage does not make the local database internet-accessible.
+## Coach and external services
+
+The Coach reads limited screen, draft, and selection context from the app. When a user sends a message, the selected Anthropic or Groq provider receives that context. Optional Tavily search and public company feeds make network requests only when the related search is used. Keep provider keys in Keychain and preserve the user-facing context disclosure in Coach Settings.
+
+The active branch contains the native app. The original React source is preserved at the private repository tag `legacy-react` (`9a11bdb`).

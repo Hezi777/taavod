@@ -49,3 +49,12 @@ output/
 
 public/practice/runtime/
 .playwright-cli/
+
+# Native build and private runtime downloads
+native/build/
+native/output/
+native/Taavod.xcodeproj/
+native/.runtime-cache/
+native/.verification-build/
+*.xcuserstate
+xcuserdata/

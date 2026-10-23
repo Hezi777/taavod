@@ -1,0 +1,823 @@
+{
+  "columns": [
+    {
+      "table_name": "actor",
+      "column_name": "actor_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "actor",
+      "column_name": "first_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "actor",
+      "column_name": "last_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "actor",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "address",
+      "column_name": "address_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "address",
+      "column_name": "address",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "address",
+      "column_name": "address2",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "address",
+      "column_name": "district",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "address",
+      "column_name": "city_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "address",
+      "column_name": "postal_code",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "address",
+      "column_name": "phone",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 7
+    },
+    {
+      "table_name": "address",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 8
+    },
+    {
+      "table_name": "category",
+      "column_name": "category_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "category",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "category",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "city",
+      "column_name": "city_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "city",
+      "column_name": "city",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "city",
+      "column_name": "country_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "city",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "country",
+      "column_name": "country_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "country",
+      "column_name": "country",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "country",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "customer",
+      "column_name": "customer_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "customer",
+      "column_name": "store_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "customer",
+      "column_name": "first_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "customer",
+      "column_name": "last_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "customer",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "customer",
+      "column_name": "address_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "customer",
+      "column_name": "activebool",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "ordinal_position": 7
+    },
+    {
+      "table_name": "customer",
+      "column_name": "create_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "ordinal_position": 8
+    },
+    {
+      "table_name": "customer",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "ordinal_position": 9
+    },
+    {
+      "table_name": "customer",
+      "column_name": "active",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "ordinal_position": 10
+    },
+    {
+      "table_name": "customer",
+      "column_name": "uuid",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "ordinal_position": 11
+    },
+    {
+      "table_name": "film",
+      "column_name": "film_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "film",
+      "column_name": "title",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "film",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "film",
+      "column_name": "release_year",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "film",
+      "column_name": "language_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "film",
+      "column_name": "original_language_id",
+      "data_type": "integer",
+      "is_nullable": "YES",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "film",
+      "column_name": "rental_duration",
+      "data_type": "smallint",
+      "is_nullable": "NO",
+      "ordinal_position": 7
+    },
+    {
+      "table_name": "film",
+      "column_name": "rental_rate",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "ordinal_position": 8
+    },
+    {
+      "table_name": "film",
+      "column_name": "length",
+      "data_type": "smallint",
+      "is_nullable": "YES",
+      "ordinal_position": 9
+    },
+    {
+      "table_name": "film",
+      "column_name": "replacement_cost",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "ordinal_position": 10
+    },
+    {
+      "table_name": "film",
+      "column_name": "rating",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "ordinal_position": 11
+    },
+    {
+      "table_name": "film",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 12
+    },
+    {
+      "table_name": "film",
+      "column_name": "special_features",
+      "data_type": "ARRAY",
+      "is_nullable": "YES",
+      "ordinal_position": 13
+    },
+    {
+      "table_name": "film",
+      "column_name": "fulltext",
+      "data_type": "tsvector",
+      "is_nullable": "NO",
+      "ordinal_position": 14
+    },
+    {
+      "table_name": "film",
+      "column_name": "length_hours",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "ordinal_position": 15
+    },
+    {
+      "table_name": "film_actor",
+      "column_name": "actor_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "film_actor",
+      "column_name": "film_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "film_actor",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "film_category",
+      "column_name": "film_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "film_category",
+      "column_name": "category_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "film_category",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "inventory",
+      "column_name": "inventory_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "inventory",
+      "column_name": "film_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "inventory",
+      "column_name": "store_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "inventory",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "language",
+      "column_name": "language_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "language",
+      "column_name": "name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "language",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "payment",
+      "column_name": "payment_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "payment",
+      "column_name": "customer_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "payment",
+      "column_name": "staff_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "payment",
+      "column_name": "rental_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "payment",
+      "column_name": "amount",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "payment",
+      "column_name": "payment_date",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "payment",
+      "column_name": "uuid",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "ordinal_position": 7
+    },
+    {
+      "table_name": "rental",
+      "column_name": "rental_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "rental",
+      "column_name": "rental_date",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "rental",
+      "column_name": "inventory_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "rental",
+      "column_name": "customer_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "rental",
+      "column_name": "return_date",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "rental",
+      "column_name": "staff_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "rental",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 7
+    },
+    {
+      "table_name": "rental",
+      "column_name": "uuid",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "ordinal_position": 8
+    },
+    {
+      "table_name": "staff",
+      "column_name": "staff_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "staff",
+      "column_name": "first_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "staff",
+      "column_name": "last_name",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "staff",
+      "column_name": "address_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    },
+    {
+      "table_name": "staff",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "ordinal_position": 5
+    },
+    {
+      "table_name": "staff",
+      "column_name": "store_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 6
+    },
+    {
+      "table_name": "staff",
+      "column_name": "active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "ordinal_position": 7
+    },
+    {
+      "table_name": "staff",
+      "column_name": "username",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "ordinal_position": 8
+    },
+    {
+      "table_name": "staff",
+      "column_name": "password",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "ordinal_position": 9
+    },
+    {
+      "table_name": "staff",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 10
+    },
+    {
+      "table_name": "staff",
+      "column_name": "picture",
+      "data_type": "bytea",
+      "is_nullable": "YES",
+      "ordinal_position": 11
+    },
+    {
+      "table_name": "store",
+      "column_name": "store_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 1
+    },
+    {
+      "table_name": "store",
+      "column_name": "manager_staff_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 2
+    },
+    {
+      "table_name": "store",
+      "column_name": "address_id",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "ordinal_position": 3
+    },
+    {
+      "table_name": "store",
+      "column_name": "last_update",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "ordinal_position": 4
+    }
+  ],
+  "constraints": [
+    {
+      "table_name": "actor",
+      "kind": "p",
+      "definition": "PRIMARY KEY (actor_id)"
+    },
+    {
+      "table_name": "address",
+      "kind": "f",
+      "definition": "FOREIGN KEY (city_id) REFERENCES city(city_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "address",
+      "kind": "p",
+      "definition": "PRIMARY KEY (address_id)"
+    },
+    {
+      "table_name": "category",
+      "kind": "p",
+      "definition": "PRIMARY KEY (category_id)"
+    },
+    {
+      "table_name": "city",
+      "kind": "f",
+      "definition": "FOREIGN KEY (country_id) REFERENCES country(country_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "city",
+      "kind": "p",
+      "definition": "PRIMARY KEY (city_id)"
+    },
+    {
+      "table_name": "country",
+      "kind": "p",
+      "definition": "PRIMARY KEY (country_id)"
+    },
+    {
+      "table_name": "customer",
+      "kind": "f",
+      "definition": "FOREIGN KEY (store_id) REFERENCES store(store_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "customer",
+      "kind": "f",
+      "definition": "FOREIGN KEY (address_id) REFERENCES address(address_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "customer",
+      "kind": "p",
+      "definition": "PRIMARY KEY (customer_id)"
+    },
+    {
+      "table_name": "film",
+      "kind": "f",
+      "definition": "FOREIGN KEY (original_language_id) REFERENCES language(language_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "film",
+      "kind": "f",
+      "definition": "FOREIGN KEY (language_id) REFERENCES language(language_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "film",
+      "kind": "p",
+      "definition": "PRIMARY KEY (film_id)"
+    },
+    {
+      "table_name": "film_actor",
+      "kind": "f",
+      "definition": "FOREIGN KEY (film_id) REFERENCES film(film_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "film_actor",
+      "kind": "f",
+      "definition": "FOREIGN KEY (actor_id) REFERENCES actor(actor_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "film_actor",
+      "kind": "p",
+      "definition": "PRIMARY KEY (actor_id, film_id)"
+    },
+    {
+      "table_name": "film_category",
+      "kind": "f",
+      "definition": "FOREIGN KEY (category_id) REFERENCES category(category_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "film_category",
+      "kind": "f",
+      "definition": "FOREIGN KEY (film_id) REFERENCES film(film_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "film_category",
+      "kind": "p",
+      "definition": "PRIMARY KEY (film_id, category_id)"
+    },
+    {
+      "table_name": "inventory",
+      "kind": "f",
+      "definition": "FOREIGN KEY (store_id) REFERENCES store(store_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "inventory",
+      "kind": "f",
+      "definition": "FOREIGN KEY (film_id) REFERENCES film(film_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "inventory",
+      "kind": "p",
+      "definition": "PRIMARY KEY (inventory_id)"
+    },
+    {
+      "table_name": "language",
+      "kind": "p",
+      "definition": "PRIMARY KEY (language_id)"
+    },
+    {
+      "table_name": "payment",
+      "kind": "f",
+      "definition": "FOREIGN KEY (rental_id) REFERENCES rental(rental_id)"
+    },
+    {
+      "table_name": "payment",
+      "kind": "f",
+      "definition": "FOREIGN KEY (staff_id) REFERENCES staff(staff_id)"
+    },
+    {
+      "table_name": "payment",
+      "kind": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customer(customer_id)"
+    },
+    {
+      "table_name": "payment",
+      "kind": "p",
+      "definition": "PRIMARY KEY (payment_date, payment_id)"
+    },
+    {
+      "table_name": "rental",
+      "kind": "f",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "rental",
+      "kind": "f",
+      "definition": "FOREIGN KEY (inventory_id) REFERENCES inventory(inventory_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "rental",
+      "kind": "f",
+      "definition": "FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "rental",
+      "kind": "p",
+      "definition": "PRIMARY KEY (rental_id)"
+    },
+    {
+      "table_name": "staff",
+      "kind": "f",
+      "definition": "FOREIGN KEY (store_id) REFERENCES store(store_id)"
+    },
+    {
+      "table_name": "staff",
+      "kind": "f",
+      "definition": "FOREIGN KEY (address_id) REFERENCES address(address_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "staff",
+      "kind": "p",
+      "definition": "PRIMARY KEY (staff_id)"
+    },
+    {
+      "table_name": "store",
+      "kind": "f",
+      "definition": "FOREIGN KEY (address_id) REFERENCES address(address_id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "table_name": "store",
+      "kind": "p",
+      "definition": "PRIMARY KEY (store_id)"
+    }
+  ]
+}

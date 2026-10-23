@@ -1,87 +1,64 @@
-# Setup and operation
+# Build and operate Taavod
 
-## Local Supabase
+Taavod is a native macOS app. The normal build and app use do not require Node.js, Docker, Supabase, or a web server.
 
-The `career-helper` stack uses Docker with OrbStack. It has its own containers, volumes and bridge network; it does not reuse the existing `elite-local` installation.
+## Requirements
 
-| Service | Local URL / port |
-|---|---|
-| Web app | http://127.0.0.1:3100 |
-| Supabase API | http://127.0.0.1:55321 |
-| PostgreSQL | 127.0.0.1:55322 |
-| Supabase Studio | http://127.0.0.1:55323 |
-| Sign-in email inbox | http://127.0.0.1:55324 |
+- Apple silicon Mac running macOS 26 or later
+- Xcode with the macOS 26 SDK
+- XcodeGen
 
-The Docker network uses `com.docker.network.bridge.host_binding_ipv4=127.0.0.1`. Keep this loopback binding when recreating the stack.
+## Build and launch
+
+From the repository root:
 
 ```sh
-pnpm services:start
-pnpm local:setup
-pnpm dev
+cd native
+./scripts/build.sh
+open build/Build/Products/Release/Taavod.app
 ```
 
-`local:setup` reads the Supabase CLI's status in memory and writes ignored `.env.local` without printing keys. It keeps the existing integration encryption key if present, creates the configured owner account through the local admin API, and imports approved data without overwriting existing records.
+The build script generates `Taavod.xcodeproj` from `project.yml` and builds the Release app for arm64.
 
-Sign-in is a real Supabase magic-link session. Enter the owner email on the login page, open the local inbox, and use its sign-in link. Messages remain on this Mac. Public account registration is disabled.
+## Package the app
 
-Stop the containers with `pnpm services:stop`; volumes are retained. Do not use `supabase db reset`, Docker volume removal, or OrbStack reset unless you intend to remove stored data.
+The current installer is [Taavod-1.0.0-arm64.dmg](https://github.com/Hezi777/taavod/releases/download/v1.0.0/Taavod-1.0.0-arm64.dmg). It is ad hoc signed and not notarized. Its SHA-256 is `c7d1f6cab39825f697146f3c4654cd4bec571d2c3b346dff15ff1bb9c20b6828`.
 
-## Private import
+To build a new disk image, first build the Release app as above. Packaging requires the macOS command line tools `hdiutil`, `codesign`, `swiftc`, `python3`, and `ditto`, plus the Python packages `ds-store` and `mac-alias`. Then run from the repository root:
 
-The approved import is deliberately narrow:
+```sh
+python3 -m pip install ds-store mac-alias
+./native/scripts/package.sh
+```
 
-- `job-search/data/jobs_merged.jsonl`: all 1,228 historical leads, preserving descriptions and provenance.
-- Current professional profile facts and six project entries, including archived work.
-- `cv/Hen-Zrihen-CV.pdf`: stored as a private file.
-- Initial weekly tasks; no invented practice or application history.
+The script writes `native/output/Taavod-1.0.0-arm64.dmg` and refuses to overwrite an existing image. The packaged app is ad hoc signed; this process does not notarize it.
 
-Financial/work-permit documents are excluded. The 27 existing SQL prompts are already represented in the generic curriculum with source provenance and fixture adaptations.
+## Runtime packs
 
-Set `CAREER_IMPORT_PATH` for a different source folder. The personal import script is Hen-specific and must remain private. A fresh user should use onboarding instead of running that script.
+The SQL and Python engines are downloaded only when first needed. `Resources/runtime-manifest.json` pins their versions, source URLs, sizes, and SHA-256 checksums. Taavod checks every downloaded file before using it and stores valid packs under `~/Library/Application Support/Taavod/Runtimes/`.
 
-Imports preserve existing IDs and edits. Re-running the import does not refresh vacancy status or reset progress.
+The app needs an internet connection to fetch an uncached runtime. Core workspace features and bundled lessons remain available without provider credentials. Coach requests need an Anthropic or Groq API key; optional Tavily search needs its own key. Add and remove keys in Coach Settings; they are kept in Keychain. Coach Settings explains what context is shared with a provider.
 
-## Environment
+## Local data
 
-Only the Supabase URL and publishable key may be browser-visible. The server key and encryption key stay server-side.
+SwiftData stores workspace records at `~/Library/Application Support/Taavod/workspace.sqlite`. Evidence files, runtime packs, pending migrations, and backups also live in this Taavod support folder. Use Settings to export or remove workspace data. The bundled curriculum, practice fixtures, and Pagila dataset contain generic learning material, not personal workspace records.
 
-| Variable | Role |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Local or hosted project API URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public client credential; owner policies still apply |
-| `SUPABASE_SECRET_KEY` | Server-only admin operations for encrypted integrations and setup |
-| `OWNER_EMAIL` | Allowed account for the private installation |
-| `INTEGRATION_ENCRYPTION_KEY` | Base64-encoded 32-byte AES-GCM encryption key |
-| `NEXT_PUBLIC_LOCAL_INBOX_URL` | Local-only sign-in inbox link |
-| `MULTI_USER_ENABLED` | Explicit future opt-in; defaults false |
-| `LOCAL_DEV_MODE` | File-backed fallback only; defaults 0 for real Supabase |
+## Optional transfer from the legacy web app
 
-Back up the encryption key together with the database through an appropriate private backup. Replacing it makes saved provider credentials unreadable; reconnect those providers after rotation.
+The original web implementation is preserved at the `legacy-react` tag. To prepare a local transfer, the legacy project must have its local Supabase stack running and a valid `.env.local`. From the repository root, run:
 
-## Migrations
+```sh
+node native/scripts/migrate-legacy.mjs /path/to/legacy-project
+```
 
-The initial migration creates owner-scoped records, a private evidence bucket, server-only encrypted integration rows and server-only AI usage counters. New local migrations should be generated with `supabase migration new <name>` and applied with the CLI's local migration command. Review SQL and run isolation tests before applying it.
+The script reads the loopback-only legacy Supabase instance, creates a private backup, copies evidence files into Taavod's Application Support folder, and stages records and any decryptable provider keys for import. Launch Taavod to complete the staged import; keys are then written to Keychain. If the old workspace has provider keys, its `INTEGRATION_ENCRYPTION_KEY` must be available in the legacy `.env.local`. The transfer script does not modify the legacy database.
 
-`pnpm db:apply` is a Management API fallback for applying the initial schema to a new hosted project. It requires scoped `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` in the shell environment. Do not use it as a substitute for migration history on an existing managed database.
+## Tests
 
-## AI and live search
+From `native/`:
 
-In Settings → Connections, enter an Anthropic, Groq or Tavily key. The server validates it and stores ciphertext, never a browser-side secret. Anthropic/Groq model choices come from each provider's current model list. Replacing or removing a connection affects only that account.
+```sh
+./scripts/test.sh
+```
 
-The coach sends the selected workspace context to the chosen provider. It does not submit job applications, contact employers, execute user code on the server or claim its feedback is an objective hiring assessment. Token counts are usage totals, not a billing estimate.
-
-Public Greenhouse and Lever feeds work without a Tavily key. A successful page fetch is not proof that applications are open. September 2026 imports remain historical until checked again.
-
-## Future hosted deployment
-
-A Vercel project is linked, but the current backend is intentionally local. To host the complete system, provision a reachable private Supabase project, apply the migration, configure the same environment names with `LOCAL_DEV_MODE=0`, set auth redirect URLs, disable signup, import through `--supabase`, and verify owner sign-in and uploads before deployment. Do not expose the local database to the internet as a shortcut.
-
-For development fallback only, `LOCAL_DEV_MODE=1` uses `.local/` on the server. It works only outside production and outside Vercel. This mode does not provide cross-device sync or real Supabase authentication.
-
-## A fresh workspace for someone else
-
-Start services, then run `OWNER_EMAIL=you@example.com pnpm local:setup --empty`. This creates the private owner without importing Hen’s career material. Sign in through the local inbox and complete onboarding. Existing database records are retained. Run this only when you intend to change the installation’s allowed owner; public signup remains disabled.
-
-## Visual design and companion
-
-See [DESIGN.md](DESIGN.md) for the supplied interface references, the live animated head, and Bloub attribution. The companion runs in the browser without Swift or Blender.
+The test script fetches missing pinned runtime files into the ignored `.runtime-cache/`, verifies their hashes, generates the Xcode project, and runs the `Taavod` scheme on macOS arm64. A first test run needs network access. Tests use provider mocks and do not need live AI credentials.

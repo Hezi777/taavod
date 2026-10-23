@@ -1,117 +1,118 @@
 {
   "meta": {
-    "name": "Taavod Cyan and Navy",
-    "description": "Reference-led learning and career workspace; approved animated clay portrait; user-selected cyan and navy.",
+    "name": "Taavod \u2014 Revolve direction",
+    "description": "Native macOS learning and career workspace. Deep black and white adaptive themes, restrained purple emphasis, exact typography, truthful charts, and the approved Shih Tzu design.",
     "source_references": [
-      "User reference images 1\u20134: white pill and list interfaces",
-      "User reference image 5: soft finance dashboard",
-      "https://bloub.vercel.app/",
-      "https://github.com/jeremy-prt/bloub"
+      "User-provided Revolve dashboard: primary visual benchmark, 2026-10-23",
+      "User-provided dark campaign dashboard: layered charts and compact controls",
+      "User-provided CampusHub and Dei dashboards: asymmetric composition and clear task cards",
+      "User-provided Zentra and Nexus dashboards: readable data hierarchy",
+      "User-provided dashboard motion video: short stagger, then chart reveal"
     ],
     "created_at": "2026-10-21",
-    "updated_at": "2026-10-22"
+    "updated_at": "2026-10-23"
   },
   "design_system": {
     "color": {
-      "palette_type": "cyan and navy with white and pale ice surfaces",
+      "palette_type": "Adaptive near-black/charcoal and off-white/white; restrained purple emphasis",
       "primary": {
-        "hex": "#102B46",
-        "role": "Text, structure and focus surface"
+        "hex": "#F6F5F1",
+        "role": "Primary text in dark mode; #17191B in light mode"
       },
       "secondary": {
-        "hex": "#E5F7FB",
-        "role": "Inset surfaces and selected pills"
+        "hex": "#151619",
+        "role": "Dark card surface; #FFFFFF in light mode"
       },
       "accent": {
-        "hex": "#13B8D5",
-        "role": "Actions, brand and interactive feedback"
+        "hex": "#9469FF",
+        "role": "Active chart data and controls; #7051D4 in light mode"
       },
       "neutral": {
         "scale": [
-          "#ffffff",
-          "#f8f8fa",
-          "#f1f1f4",
-          "#e9e9ed",
-          "#aaa8b4",
-          "#707078",
-          "#46464e",
-          "#25252a"
+          "#050607",
+          "#08090B",
+          "#151619",
+          "#1C1D20",
+          "#2D2E34",
+          "#797B7E",
+          "#B4B5BA",
+          "#F6F5F1"
         ],
-        "usage": "White work panels on pale gray; navy text and cyan accents"
+        "usage": "Black canvas, charcoal panels, fine rims, high-contrast text; invert thoughtfully for light mode"
       },
       "semantic": {
-        "success": "#5a8f71",
-        "warning": "#a98746",
-        "error": "#c94343",
-        "info": "#147F9E"
+        "success": "systemGreen",
+        "warning": "systemOrange",
+        "error": "systemRed",
+        "info": "#9469FF"
       },
       "surface": {
-        "background": "#F3F4F7",
-        "card": "#ffffff",
-        "elevated": "#ffffff"
+        "background": "#08090B / #F3F3F1",
+        "card": "#151619 / #FFFFFF",
+        "elevated": "Native regular Liquid Glass for floating controls"
       },
-      "contrast_strategy": "dark-on-light dominant; neutral depth with visible keyboard focus"
+      "contrast_strategy": "Solid reading surfaces, clear primary/secondary text, visible keyboard focus; color never carries meaning alone"
     },
     "typography": {
       "type_scale": {
         "display": {
-          "size": "46px",
-          "weight": 600,
-          "line_height": 1.12,
-          "tracking": "-2px"
+          "size": "32pt",
+          "weight": 500,
+          "line_height": 1.2,
+          "tracking": "-1.0pt"
         },
         "heading_1": {
-          "size": "34px",
-          "weight": 600,
-          "line_height": 1.3,
-          "tracking": "-1.3px"
+          "size": "28pt",
+          "weight": 500,
+          "line_height": 1.2,
+          "tracking": "-0.8pt"
         },
         "heading_2": {
-          "size": "24px",
-          "weight": 600,
-          "line_height": 1.4,
-          "tracking": "-.8px"
+          "size": "22pt",
+          "weight": 500,
+          "line_height": 1.2,
+          "tracking": "-0.5pt"
         },
         "heading_3": {
-          "size": "18px",
-          "weight": 600,
-          "line_height": 1.4,
-          "tracking": "-.5px"
+          "size": "15pt",
+          "weight": 500,
+          "line_height": 1.2,
+          "tracking": "-0.2pt"
         },
         "body": {
-          "size": "16px",
+          "size": "13pt",
           "weight": 400,
-          "line_height": 1.7,
-          "tracking": "-.015em"
+          "line_height": 1.45,
+          "tracking": "normal"
         },
         "body_small": {
-          "size": "14px",
+          "size": "12pt",
           "weight": 400,
-          "line_height": 1.7,
-          "tracking": "-.015em"
+          "line_height": 1.45,
+          "tracking": "normal"
         },
         "caption": {
-          "size": "12px",
+          "size": "11pt",
           "weight": 400,
-          "line_height": 1.6,
+          "line_height": 1.2,
           "tracking": "normal"
         },
         "overline": {
-          "size": "11px",
+          "size": "9pt",
           "weight": 500,
-          "line_height": 1.5,
-          "tracking": ".015em"
+          "line_height": 1.2,
+          "tracking": "1.2pt"
         }
       },
       "font_families": {
-        "heading": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
-        "body": "-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
-        "mono": "ui-monospace, SFMono-Regular, Menlo, monospace"
+        "heading": "SF Pro system sans",
+        "body": "SF Pro system sans",
+        "mono": "SF Mono monospaced system"
       },
-      "font_style_notes": "Apple system sans on macOS; large plain headings, no decorative fonts"
+      "font_style_notes": "Plain, precise system typography with optical sizing, restrained medium weights, tight large-heading tracking and tabular chart values."
     },
     "spacing": {
-      "base_unit": "4px",
+      "base_unit": "4pt",
       "scale": [
         4,
         8,
@@ -124,71 +125,71 @@
         40,
         48
       ],
-      "content_density": "comfortable",
-      "section_rhythm": "24\u201332px between panels; 16\u201324px inside lists"
+      "content_density": "Compact navigation and charts; comfortable reading and editing",
+      "section_rhythm": "14\u201324pt between panels; 16\u201322pt internal padding"
     },
     "layout": {
-      "grid_system": "Responsive CSS grids with persistent desktop sidebar",
-      "max_content_width": "1500px",
-      "columns": "2 main columns on dashboard; 3 learning cards at wide widths",
-      "gutter": "22px",
+      "grid_system": "Native SwiftUI adaptive rows and grids with collapsible 228pt sidebar",
+      "max_content_width": "1260pt",
+      "columns": "Dominant activity chart with weekly task column; separate spacious learning and coding workspaces",
+      "gutter": "14\u201324pt",
       "breakpoints": {
-        "mobile": "760px",
-        "tablet": "950px",
-        "wide": "1450px"
+        "minimum_window": "960\u00d7680pt",
+        "default_window": "1180\u00d7800pt",
+        "wide": "1260pt content cap"
       },
-      "alignment_tendency": "strict grid with asymmetric dashboard emphasis"
+      "alignment_tendency": "Consistent left edges, asymmetric information hierarchy, no overlapping fixed-height content"
     },
     "shape": {
       "border_radius": {
-        "small": "12px",
-        "medium": "18px",
-        "large": "25px",
-        "pill": "999px"
+        "small": "8pt",
+        "medium": "12\u201316pt",
+        "large": "20\u201322pt",
+        "pill": "Capsule"
       },
-      "border_usage": "subtle 1px; mostly surface separation",
-      "divider_style": "fine neutral lines where grouping needs them"
+      "border_usage": "0.6\u20130.75pt neutral rims, selected-row definition",
+      "divider_style": "Fine neutral rules only where grouping requires them"
     },
     "elevation": {
-      "shadow_style": "soft diffused",
+      "shadow_style": "Minimal on cards; broad, soft separation only on floating coach",
       "levels": {
-        "low": "0 2px 3px #20202809",
-        "medium": "0 8px 26px #20202805",
-        "high": "0 24px 90px #16162120"
+        "low": "Surface and rim separation",
+        "medium": "Native glass control depth",
+        "high": "Soft floating-panel shadow"
       },
-      "depth_cues": "raised pills, inset inputs, matte layered cards"
+      "depth_cues": "Near-flat charcoal surfaces, very subtle 2.5% upper-left light, inset controls"
     },
     "iconography": {
-      "style": "simple rounded outline with selective pastel tiles",
-      "stroke_weight": "1.75px",
+      "style": "SF Symbols regular strokes with muted inset tiles",
+      "stroke_weight": "System regular weight",
       "size_scale": [
+        12,
         14,
         16,
-        18,
         20,
         24
       ],
-      "preferred_set": "Lucide"
+      "preferred_set": "SF Symbols"
     },
     "motion": {
-      "easing": "ease-out and cubic interpolation",
+      "easing": "cubic-bezier(0.23, 1, 0.32, 1) and interruptible native transitions",
       "duration_scale": {
-        "micro": "160ms",
-        "normal": "240ms",
-        "macro": "450ms"
+        "micro": "100\u2013160ms",
+        "normal": "180\u2013280ms",
+        "macro": "280ms"
       },
-      "entrance_pattern": "subtle opacity or surface feedback",
-      "exit_pattern": "brief fade",
-      "philosophy": "functional UI motion; expressive facial rig, reduced-motion static pose"
+      "entrance_pattern": "One initial dashboard stagger: 8pt translation and opacity, 50ms between groups; chart clip reveal follows",
+      "exit_pattern": "Brief symmetric panel fade/offset",
+      "philosophy": "Feedback and state clarity; no delayed keyboard navigation, no perpetual decorative loops, reduced-motion equivalent included"
     },
     "components": {
-      "button_style": "raised white pill or charcoal primary pill",
-      "input_style": "soft gray inset rounded field",
-      "card_style": "white rounded panels with faint shadows",
-      "navigation_pattern": "ChatGPT-like sidebar, active raised row, mobile drawer",
-      "modal_style": "rounded white dialog with soft broad shadow",
-      "list_style": "airy rows with small icons and clear primary text",
-      "component_notes": "shadcn/Radix primitives throughout; avoid colored borders around every card"
+      "button_style": "Legible pill primary actions, compact native controls, visible press state",
+      "input_style": "Inset neutral fields with clear focus and labels",
+      "card_style": "Near-flat neutral rounded panels with fine rims; sparse semantic tints",
+      "navigation_pattern": "Collapsible native sidebar, explicit active row, grouped workspace/career navigation and breadcrumb",
+      "modal_style": "Native sheets; one Liquid Glass surface for floating coach",
+      "list_style": "Aligned, scannable rows with actual counts and clear actions",
+      "component_notes": "SwiftUI and AppKit own the visible interface. Native Swift Charts display saved records only."
     }
   },
   "design_style": {
@@ -199,50 +200,50 @@
         "personal",
         "focused"
       ],
-      "visual_metaphor": "a quiet personal workspace with a small helpful companion",
+      "visual_metaphor": "A precise personal learning and career cockpit",
       "era_influence": "contemporary Apple desktop interfaces",
-      "genre": "personal productivity",
+      "genre": "Native macOS productivity",
       "personality_traits": [
         "approachable",
         "precise",
         "encouraging"
       ],
       "adjectives": [
-        "soft",
-        "rounded",
-        "airy",
-        "restrained"
+        "precise",
+        "quiet",
+        "polished",
+        "legible"
       ]
     },
     "visual_language": {
       "complexity": "moderate",
-      "ornamentation": "subtle accents",
+      "ornamentation": "Subtle surface light and one accent",
       "whitespace_usage": "generous around headings and between work areas",
-      "visual_weight_distribution": "strong headline, light surfaces, small colorful indicators",
-      "focal_strategy": "one portrait-inspired companion and useful primary action",
+      "visual_weight_distribution": "Dominant readable chart and next action; supporting metrics stay compact",
+      "focal_strategy": "Actionable next step plus truthful activity chart",
       "contrast_level": "high text contrast, subtle surface contrast",
-      "texture_usage": "matte clay character, clean UI surfaces"
+      "texture_usage": "Detailed plush Shih Tzu artwork; clean UI surfaces"
     },
     "composition": {
       "hierarchy_method": "typographic hierarchy and spatial grouping",
       "balance_type": "asymmetric",
-      "flow_direction": "sidebar to headline to weekly work",
-      "grouping_strategy": "related actions in distinct soft panels",
+      "flow_direction": "Sidebar to page context, next action, activity and weekly work",
+      "grouping_strategy": "Related data and actions share a clearly titled panel",
       "negative_space_role": "reduce visual noise and preserve focus"
     },
     "imagery": {
-      "photo_treatment": "source portrait used only for character reference",
-      "illustration_style": "Approved portrait-derived clay artwork, compact curls, side fade and short boxed beard",
-      "graphic_elements": "small pastel icon tiles, narrow gradient accents",
-      "pattern_usage": "none",
-      "image_shape": "isolated floating head"
+      "photo_treatment": "Owner-provided dog photos serve as identity references only; raw photos are excluded from source",
+      "illustration_style": "Approved cream-and-tan Shih Tzu with dark floppy ears, white crown and short muzzle; premium cinematic 3D render",
+      "graphic_elements": "Purple chart emphasis, restrained neutral tiles, native glass controls",
+      "pattern_usage": "No decorative particle or noise overlays",
+      "image_shape": "Centered chest-up portrait for video and a separately framed transparent icon cutout"
     },
     "interaction_feel": {
-      "feedback_style": "clear state labels, gentle raised controls",
-      "hover_behavior": "small lift on buttons; direct gaze reaction",
+      "feedback_style": "Explicit states, selected-row treatment, chart details and direct actions",
+      "hover_behavior": "Near-imperceptible control feedback and chart value tooltip",
       "transition_personality": "smooth and brief",
       "loading_style": "honest text and simple spinner",
-      "microinteraction_density": "restrained UI, expressive companion"
+      "microinteraction_density": "Short, sparse, purposeful"
     },
     "brand_voice_in_ui": {
       "tone": "friendly and practical",
@@ -255,18 +256,18 @@
   "visual_effects": {
     "overview": {
       "effect_intensity": "subtle-accent",
-      "performance_tier": "medium",
-      "fallback_strategy": "Exact approved neutral portrait while loading, when reduced motion is active, or if graphics are unavailable",
-      "primary_technology": "PixiJS WebGL portrait layers; full Bloub state engine for animation"
+      "performance_tier": "Native, event-driven",
+      "fallback_strategy": "Approved static Shih Tzu artwork while video is unavailable or reduced motion is enabled",
+      "primary_technology": "SwiftUI, native Liquid Glass and Swift Charts; AVFoundation cursor-scrub component pending approved motion takes"
     },
     "background_effects": {
       "type": "none",
-      "description": "Solid pearl workspace; static soft gradient on login",
-      "technology": "CSS",
+      "description": "Solid black or off-white canvas; subtle local panel light only",
+      "technology": "SwiftUI",
       "params": {
         "color_palette": [
-          "#f8f8fa",
-          "#ece5f3"
+          "#08090B",
+          "#F3F3F1"
         ],
         "speed": 0,
         "density": 0,
@@ -294,23 +295,23 @@
     },
     "3d_elements": {
       "enabled": false,
-      "type": "portrait-inspired companion head",
-      "description": "Superseded approximate mesh; approved clay portrait is rendered as a 2D facial rig.",
-      "technology": "none",
+      "type": "Development SceneKit dog rig retained in source",
+      "description": "Live scene is development artwork. The approved rendered dog is the visible brand; video integration awaits suitable takes.",
+      "technology": "SceneKit prototype; Icon Composer artwork",
       "params": {
-        "renderer": "none",
-        "lighting": "baked into approved artwork",
-        "camera": "front-facing artwork",
-        "materials": "none",
-        "geometry": "none",
+        "renderer": "Static approved render in main UI",
+        "lighting": "Baked cinematic lighting in approved render",
+        "camera": "Front-facing chest-up portrait",
+        "materials": "Cream/tan fur and brown-black ears",
+        "geometry": "Prototype USDZ retained for development",
         "post_processing": [],
-        "interaction_model": "superseded; see canvas_drawings"
+        "interaction_model": "Native cursor scrubbing pending final direction clips"
       }
     },
     "shader_effects": {
       "enabled": false,
       "type": "none",
-      "description": "Default Pixi textured rendering; no bespoke shader effects",
+      "description": "No custom full-screen shaders; native glass only",
       "technology": "none",
       "params": {
         "uniforms": [],
@@ -341,7 +342,7 @@
     "text_effects": {
       "type": "none",
       "description": "Plain readable text",
-      "technology": "CSS",
+      "technology": "SwiftUI",
       "params": {
         "split_strategy": "none",
         "animation_per_unit": "none",
@@ -352,7 +353,7 @@
     "cursor_effects": {
       "enabled": false,
       "type": "none",
-      "description": "Native cursor; companion gaze follows pointer",
+      "description": "System cursor; chart hover details. Planned dog gaze responds inside the app window only.",
       "params": {
         "shape": "native",
         "size": "native",
@@ -362,46 +363,46 @@
       }
     },
     "image_effects": {
-      "type": "facial-puppetry",
-      "description": "Feathered eyelid/mouth keyframes and localized pupil movement; approved haircut, beard and face silhouette preserved",
-      "technology": "PixiJS MeshPlane and sprite masks",
+      "type": "Static portrait and transparent icon cutout",
+      "description": "Approved Shih Tzu identity preserved across dashboard and Icon Composer; native video scrub prepared separately",
+      "technology": "SwiftUI image rendering; Icon Composer; AVFoundation component",
       "params": {
         "filter_pipeline": [
-          "alpha masks"
+          "Native clipping and icon composition"
         ],
-        "hover_transform": "Bloub gaze interpolation",
-        "reveal_animation": "approved artwork shown immediately while renderer loads",
-        "distortion_type": "localized facial deformation"
+        "hover_transform": "No static-image deformation",
+        "reveal_animation": "Immediate poster",
+        "distortion_type": "None"
       }
     },
     "glassmorphism_neumorphism": {
       "enabled": true,
-      "style": "neumorphic-light",
+      "style": "Native Liquid Glass",
       "params": {
-        "blur_radius": "0px",
-        "transparency": 1,
-        "border_treatment": "subtle neutral",
-        "shadow_type": "soft raised controls, inset fields",
-        "light_source_angle": "upper left"
+        "blur_radius": "System-controlled",
+        "transparency": "System-controlled, with readable neutral tint",
+        "border_treatment": "Fine neutral rim",
+        "shadow_type": "Native control depth and soft coach shadow",
+        "light_source_angle": "System lighting"
       }
     },
     "canvas_drawings": {
-      "enabled": true,
-      "type": "portrait facial rig",
-      "description": "Approved short-curl/fade portrait with independently composited eyelid and mouth keyframes; local pupil/brow mesh deformation",
-      "technology": "PixiJS 8.22.0",
+      "enabled": false,
+      "type": "None",
+      "description": "No web canvas or Pixi renderer in the native product",
+      "technology": "None",
       "params": {
-        "draw_method": "MeshPlane plus feathered texture masks",
-        "animation_loop": "Bloub BotEngine.sample(t), capped at 30fps",
-        "color_scheme": "Approved artwork, no recoloring",
-        "responsiveness": "Responsive to companion container, resolution capped at 2",
-        "interaction": "Bloub gaze interpolation, wink, expression transitions and thinking pulse"
+        "draw_method": "Native SwiftUI views",
+        "animation_loop": "No continuous dashboard rendering loop",
+        "color_scheme": "Adaptive dark/light tokens",
+        "responsiveness": "Native layout",
+        "interaction": "Native controls"
       }
     },
     "svg_animations": {
       "enabled": false,
       "type": "none",
-      "description": "Bloub motion functions reused on 3D meshes instead of its SVG silhouette",
+      "description": "No SVG animation runtime in the native product",
       "params": {
         "animation_method": "none",
         "path_morphing": false,
@@ -409,6 +410,6 @@
         "filter_effects": []
       }
     },
-    "composite_notes": "Reference screenshots show static 3D/orb imagery and tactile UI. Runtime motion is an implementation choice informed by Bloub and the user request; never inferred as observed animation in still screenshots."
+    "composite_notes": "Revolve is the primary visual benchmark, with native Apple behavior and Liquid Glass on controls. Charts contain actual saved data. The approved Shih Tzu render supersedes the previous clay portrait. Still references describe appearance, not observed motion."
   }
 }

@@ -1,15 +1,15 @@
 # Verification
 
-Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before declaring changes done.
+Run the native suite from `native/` before finishing a change:
 
-Tests cover result-based SQL/Python grading, two data fixtures, imported exercise coverage, review scheduling, job identity and filtering, URL/network restrictions, merged-record validation, pagination, provider error handling and file boundaries. Isolation tests execute the actual migration in PGlite with auth/storage stubs and two identities; repeat smoke checks against local Supabase when changing auth or policies.
+```sh
+./scripts/test.sh
+```
 
-Use Playwright CLI for browser automation. Isolate sessions by feature, snapshot before using element references, and save captures under ignored `output/playwright/`. Do not use the in-app browser extension for automation.
+The script prepares the pinned PGlite and Pyodide test packs in the ignored `.runtime-cache/`, generates the Xcode project, then runs the `Taavod` scheme on macOS arm64 with code signing disabled. A first run needs network access to fetch packs; valid cached files are reused. The suite covers workspace persistence and migration, lesson-to-exercise grouping, coach context and mock response parsing, and SQL/Python execution including alternate answers, failures, plots, and cancellation. It does not require a live provider key.
 
-Verify code execution through the interface: valid alternate solution, wrong result, invalid syntax, cancellation, reset, and reload persistence. Check Python chart output. Written and external work must remain labeled self-reviewed.
+Latest verification: all 20 tests pass, and the Release build passes. The distributable DMG is ad hoc signed and not notarized; see [setup](../docs/SETUP.md) for its location and checksum.
 
-For job changes verify preview → save → stage/notes/follow-up → reload, clearing dates, historical filters, deduplication and visible import errors. For identity changes verify anonymous denial, non-owner denial, sign-in/out, private downloads and fresh onboarding.
+Build the local app with `./scripts/build.sh`. For interface changes, launch the built app and check the affected screen in both light and dark appearance, at the minimum window size, and with Reduce Motion enabled where motion is involved. Confirm that runtime, editor, and record actions still preserve learner progress.
 
-Exercise provider behavior with mocks unless the user has configured a real key. Never invent a live-provider validation result. Keep test records distinct from Hen's records and remove only known QA records afterward.
-
-Generated PGlite distribution files and private `.local/` data are ignored and excluded from authored-source lint. Runtime assets are recreated by the build script; never commit uploaded CVs, local state, keys, credential status output or browser auth state.
+Keep generic test fixtures separate from real workspace records. Never test with private career data, uploaded files, API keys, or browser credentials in source or committed artifacts.

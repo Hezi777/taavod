@@ -1,0 +1,204 @@
+{
+  "sql": {
+    "version": "0.5.10",
+    "files": [
+      {
+        "path": "chunk-3OMHRXTA.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/chunk-3OMHRXTA.js",
+        "sha256": "5bb49743e0a917c92828f7558be3df26f549d64c0bffc80de92f5fbb21f37a79",
+        "bytes": 18587
+      },
+      {
+        "path": "chunk-6QROZKQ5.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/chunk-6QROZKQ5.js",
+        "sha256": "0dfd8153da8b7dce187964811397e468ab14f33e999cbf10ca1e067500fbd039",
+        "bytes": 99703
+      },
+      {
+        "path": "chunk-7NIVBDG7.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/chunk-7NIVBDG7.js",
+        "sha256": "161f0b0ea69bcae99be2a09ddec378ca6d3d8687effdc8ee5cf6096dda843706",
+        "bytes": 4220
+      },
+      {
+        "path": "chunk-F4GETNPB.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/chunk-F4GETNPB.js",
+        "sha256": "5ab11fd9fd74b259484f42a7855cd9569a5fe6ee1cf3c032238ac43a59511d97",
+        "bytes": 998
+      },
+      {
+        "path": "chunk-NNS5RQRF.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/chunk-NNS5RQRF.js",
+        "sha256": "e04c14da71c248d5e7e02f45df665b8e2b136526ee0bef419274bb2b345a1017",
+        "bytes": 2174
+      },
+      {
+        "path": "chunk-O56QGQDD.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/chunk-O56QGQDD.js",
+        "sha256": "a3239ef94a90d12af61de0f79e096a1f52ca484aa35aed476b02f101fed7de41",
+        "bytes": 917
+      },
+      {
+        "path": "chunk-QY3QWFKW.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/chunk-QY3QWFKW.js",
+        "sha256": "bff6d3144dd6ea2689b00d9d0eea1ea2267b9cc14505fb9107b6194c1832bdea",
+        "bytes": 1335
+      },
+      {
+        "path": "index.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/index.js",
+        "sha256": "fa28c6daa43aa4de73fddd7a910cd183df4ef6b26410daf3582afc1d2a61512d",
+        "bytes": 1929131
+      },
+      {
+        "path": "initdb.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/initdb.js",
+        "sha256": "4510946b04f0f09b95ebe1f21b4f195c56e50eeb513285ca51964eecf41abef5",
+        "bytes": 105955
+      },
+      {
+        "path": "initdb.wasm",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/initdb.wasm",
+        "sha256": "b33b41af366b4f7909085bb360b37587e5fa57a26113d84c21f23f9bfd63c0f8",
+        "bytes": 300129
+      },
+      {
+        "path": "pglite.data",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/pglite.data",
+        "sha256": "12384e109f1cea6edb978550d0445f8958ad4089cbbe3222d657f56e2e817d4b",
+        "bytes": 6248214
+      },
+      {
+        "path": "pglite.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/pglite.js",
+        "sha256": "cc7ca1ef26e0a5a49e73c2396b5b081db6d41aa68caa98b0b1fc78cb7f59ff3d",
+        "bytes": 2117649
+      },
+      {
+        "path": "pglite.wasm",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/pglite.wasm",
+        "sha256": "864c7651fe2f23c38ff9e047a0b8851af0a5dbcbbb244a6a985bc254f274659e",
+        "bytes": 10498455
+      },
+      {
+        "path": "templating.js",
+        "url": "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.5.10/dist/templating.js",
+        "sha256": "99508ccae5c9848d45b22d714a75649c5f8121840cf8000fda10000e3eaad767",
+        "bytes": 161
+      }
+    ]
+  },
+  "python": {
+    "version": "314.0.7",
+    "files": [
+      {
+        "path": "pyodide.mjs",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.mjs",
+        "sha256": "6f1d60f7bf529beb300f0f47983c921d3982363640ba20af0e38efdddbc66109",
+        "bytes": 17931
+      },
+      {
+        "path": "pyodide.asm.mjs",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.asm.mjs",
+        "sha256": "f7cdc8ece80678ceb712f8e65ebe6d3a83203a180c399865f49612a051693635",
+        "bytes": 1250344
+      },
+      {
+        "path": "pyodide.asm.wasm",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.asm.wasm",
+        "sha256": "cc36e3cab04fdfc9a63ff13eb52eae2b911bf46c025cc7b281f394bd3de1d5e6",
+        "bytes": 9598218
+      },
+      {
+        "path": "python_stdlib.zip",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/python_stdlib.zip",
+        "sha256": "fa1957e5777068fc4f7437f96d860ae2fbe9c19732ba06c84e004ec16dd7dd7a",
+        "bytes": 2545637
+      },
+      {
+        "path": "pyodide-lock.json",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide-lock.json",
+        "sha256": "5dc2fc119108bc148c7457dc86e7675b5c87e1cafd420b9c34c1eaef7b36c010",
+        "bytes": 119077
+      },
+      {
+        "path": "contourpy-1.3.3-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/contourpy-1.3.3-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "sha256": "0ac15ebf9f820d2d1c3526388aa2818b631cb6c4aae1682efd6b4cc12c1f302c",
+        "bytes": 118874
+      },
+      {
+        "path": "cycler-0.12.1-py3-none-any.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/cycler-0.12.1-py3-none-any.whl",
+        "sha256": "8ee450085f15b47f78b034d60059af6a3649e98fa5dde073363437742cc0b4ea",
+        "bytes": 8321
+      },
+      {
+        "path": "fonttools-4.62.1-py3-none-any.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/fonttools-4.62.1-py3-none-any.whl",
+        "sha256": "0d1516e073fd0a8d8e6d9af46417b6a26209a42518024a18f7085e72d2599605",
+        "bytes": 1152647
+      },
+      {
+        "path": "kiwisolver-1.5.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/kiwisolver-1.5.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "sha256": "47781998156721147c128a3c74547d5703e0e3cc454d8203e629339368308a93",
+        "bytes": 36616
+      },
+      {
+        "path": "matplotlib-3.10.8-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/matplotlib-3.10.8-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "sha256": "722857932f8f62eac64f8439af15c94d427f9fb945f9590cd242805c983d2d54",
+        "bytes": 6982033
+      },
+      {
+        "path": "numpy-2.4.6-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/numpy-2.4.6-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "sha256": "a292c1f5d7d8a2208cd5e94fc467604c131cabcd2fc14fed6eefde121e7fabdf",
+        "bytes": 2960568
+      },
+      {
+        "path": "packaging-26.1-py3-none-any.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/packaging-26.1-py3-none-any.whl",
+        "sha256": "565acbbea54da30348b6d68b6a54373e6f777987db9f1db6966b4b3a5060d303",
+        "bytes": 95852
+      },
+      {
+        "path": "pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "sha256": "45ff57772cc2f366a8582c7d3097cc4e6676342ecd5a3c08184a43462d5a02ae",
+        "bytes": 4177749
+      },
+      {
+        "path": "pillow-12.2.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pillow-12.2.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "sha256": "e29838b7a756e4ee0f27a9cfa9a387ee0dfa2e9dd44be2dd595130b9f9d93ac3",
+        "bytes": 1037806
+      },
+      {
+        "path": "pyparsing-3.3.2-py3-none-any.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyparsing-3.3.2-py3-none-any.whl",
+        "sha256": "f0dd8225b5f8e945980b400bd465b4b90cb0498a2eede0d9dbea98372f6110c5",
+        "bytes": 122781
+      },
+      {
+        "path": "python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+        "sha256": "9b13365edf9c188f570baf9c540bbb3029ada2a2dacb9694b3659941693ee9e5",
+        "bytes": 229892
+      },
+      {
+        "path": "pytz-2026.1.post1-py2.py3-none-any.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pytz-2026.1.post1-py2.py3-none-any.whl",
+        "sha256": "b8249d6450146e0b61e6d710dc02ebb35a904796c4c2f97fe87d4ac5872db36a",
+        "bytes": 510489
+      },
+      {
+        "path": "six-1.17.0-py2.py3-none-any.whl",
+        "url": "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/six-1.17.0-py2.py3-none-any.whl",
+        "sha256": "228c50f73aa7addf2c2ccf2979c256802a59ab69cad8152b31b9443cc8140f42",
+        "bytes": 11050
+      }
+    ]
+  }
+}
