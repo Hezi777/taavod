@@ -32,7 +32,7 @@ struct OnboardingView: View {
                     "createdAt": .string(Date.now.ISO8601Format())
                 ])
                 if !app.store.profile.isEmpty { onComplete() }
-            }.buttonStyle(.borderedProminent).controlSize(.large).disabled(targetRole.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }.buttonStyle(.borderedProminent).controlSize(.large).disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || targetRole.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             Text("You can export or remove your local data in Settings.").font(.caption).foregroundStyle(.tertiary)
         }.padding(28)
     }
@@ -45,76 +45,77 @@ struct JobsView: View {
     @State private var editor: JobEditor?
     private let stages = ["Discovered", "Saved", "Preparing", "Applied", "Interviewing", "Offer", "Rejected", "Withdrawn", "Archived"]
     private var jobs: [WorkspaceRecord] { app.store.list("jobs").sorted { $0.payload.text("capturedAt") > $1.payload.text("capturedAt") } }
-    private var selectedJob: WorkspaceRecord? { jobs.first { $0.id == selectedID } ?? jobs.first }
+    private var selectedJob: WorkspaceRecord? { jobs.first { $0.id == selectedID } }
     private var activeCount: Int { jobs.filter { !["rejected", "withdrawn", "archived"].contains($0.payload.text("status")) }.count }
     private var followUps: Int { jobs.filter { !$0.payload.text("followUpDate").isEmpty }.count }
 
     var body: some View {
-        HSplitView {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Career workspace").font(.title2.weight(.semibold))
-                        Text("A clear view of every opportunity").font(.callout).foregroundStyle(TaavodPalette.muted)
-                    }
-                    Spacer(minLength: 4)
-                    Menu {
-                        Button("Add a role", systemImage: "plus") { editor = JobEditor() }
-                        Button("Find or import", systemImage: "magnifyingglass") { discoveryOpen = true }
-                    } label: {
-                        Image(systemName: "plus").font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(TaavodPalette.ink).frame(width: 34, height: 34)
-                            .background(TaavodPalette.mint, in: Circle())
-                    }.menuStyle(.borderlessButton).help("Add or import a role")
-                }
-                HStack(spacing: 8) {
-                    JobSummaryChip(value: "\(jobs.count)", label: "tracked", fill: TaavodPalette.lilac)
-                    JobSummaryChip(value: "\(activeCount)", label: "active", fill: TaavodPalette.mint)
-                    JobSummaryChip(value: "\(followUps)", label: "follow-ups", fill: TaavodPalette.peach)
-                }
-                List(selection: $selectedID) {
-                    ForEach(stages, id: \.self) { stage in
-                        let rows = jobs.filter { $0.payload.text("status") == stage.lowercased() }
-                        if !rows.isEmpty {
-                            Section {
-                                ForEach(rows) { job in
-                                    JobListRow(job: job).tag(job.id)
-                                }
-                            } header: {
-                                HStack { Text(stage); Spacer(); Text("\(rows.count)").foregroundStyle(TaavodPalette.muted) }
-                                    .font(.caption.weight(.medium))
-                            }
-                        }
-                    }
-                }.listStyle(.sidebar).scrollContentBackground(.hidden)
-            }
-            .padding(.top, 22)
-            .background(TaavodPalette.canvas)
-            .frame(minWidth: 265, idealWidth: 300, maxWidth: 360, maxHeight: .infinity)
-            Group {
-                if let job = selectedJob {
+        Group {
+            if let job = selectedJob {
+                VStack(alignment: .leading, spacing: 0) {
+                    Button { selectedID = nil; app.selectedRecordID = nil } label: { Label("All roles", systemImage: "chevron.left") }
+                        .buttonStyle(.plain).padding(.horizontal, 26).padding(.top, 18)
                     JobDetail(job: job, stages: stages, onChangeStage: { stage in
                         app.store.update("jobs", id: job.id, patch: ["status": .string(stage.lowercased()), "updatedAt": .string(Date.now.ISO8601Format())])
                     }, onEdit: { editor = JobEditor(record: job) }, onDelete: {
-                        app.store.remove("jobs", id: job.id); selectedID = nil
+                        app.store.remove("jobs", id: job.id); selectedID = nil; app.selectedRecordID = nil
                     })
-                } else {
-                    VStack(spacing: 16) {
-                        Image(systemName: "briefcase").font(.system(size: 28, weight: .medium)).foregroundStyle(TaavodPalette.ink)
-                            .frame(width: 68, height: 68).background(TaavodPalette.mint, in: RoundedRectangle(cornerRadius: 22))
-                        Text("Your next opportunity starts here").font(.title2.weight(.semibold))
-                        Text("Save a role to keep its stage, notes and follow-up together.").font(.callout).foregroundStyle(TaavodPalette.muted).multilineTextAlignment(.center).frame(maxWidth: 340)
-                        Button("Add a role") { editor = JobEditor() }.buttonStyle(TaavodPrimaryButton())
-                    }.frame(maxWidth: .infinity, maxHeight: .infinity).background(TaavodPalette.canvas)
                 }
+            } else {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Career workspace").font(.title2.weight(.semibold))
+                            Text("A clear view of every opportunity").font(.callout).foregroundStyle(TaavodPalette.muted)
+                        }
+                        Spacer(minLength: 4)
+                        Menu {
+                            Button("Add a role", systemImage: "plus") { editor = JobEditor() }
+                            Button("Find or import", systemImage: "magnifyingglass") { discoveryOpen = true }
+                        } label: {
+                            Label("Add or find a role", systemImage: "plus").labelStyle(.iconOnly)
+                                .font(.system(size: 14, weight: .semibold)).foregroundStyle(TaavodPalette.ink)
+                                .frame(width: 36, height: 36).background(TaavodPalette.accent.opacity(0.18), in: Circle())
+                        }.menuStyle(.borderlessButton).help("Add or import a role")
+                    }
+                    HStack(spacing: 8) {
+                        JobSummaryChip(value: "\(jobs.count)", label: "tracked", fill: TaavodPalette.surface)
+                        JobSummaryChip(value: "\(activeCount)", label: "active", fill: TaavodPalette.surface)
+                        JobSummaryChip(value: "\(followUps)", label: "follow-ups", fill: TaavodPalette.surface)
+                    }
+                    if jobs.isEmpty {
+                        ContentUnavailableView {
+                            Label("Track your next opportunity", systemImage: "briefcase")
+                        } description: {
+                            Text("Add a role or import a public listing to keep notes, stages and follow-ups together.")
+                        } actions: {
+                            Button("Add a role") { editor = JobEditor() }.buttonStyle(TaavodPrimaryButton())
+                        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        List(selection: $selectedID) {
+                            ForEach(stages, id: \.self) { stage in
+                                let rows = jobs.filter { $0.payload.text("status") == stage.lowercased() }
+                                if !rows.isEmpty {
+                                    Section {
+                                        ForEach(rows) { job in JobListRow(job: job).tag(job.id) }
+                                    } header: {
+                                        HStack { Text(stage); Spacer(); Text("\(rows.count)").foregroundStyle(TaavodPalette.muted) }
+                                            .font(.caption.weight(.medium))
+                                    }
+                                }
+                            }
+                        }.listStyle(.inset).scrollContentBackground(.hidden)
+                    }
+                }.padding(24).frame(maxWidth: 900, alignment: .leading).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity)
         }
+        .background(TaavodPalette.canvas)
         .sheet(item: $editor) { item in JobEditorView(app: app, editor: item) { id in selectedID = id }.frame(width: 560, height: 650) }
         .sheet(isPresented: $discoveryOpen) { JobDiscoverySheet(app: app) { id in selectedID = id; app.selectedRecordID = id }.frame(width: 850, height: 650) }
         .onChange(of: app.route) { _, route in if route == .jobs, let id = app.selectedRecordID { selectedID = id } }
         .onChange(of: app.selectedRecordID) { _, id in if app.route == .jobs, let id { selectedID = id } }
         .onChange(of: selectedID) { _, id in if let id { app.selectedRecordID = id } }
+        .onAppear { if app.route == .jobs { selectedID = app.selectedRecordID } }
     }
 }
 
@@ -144,9 +145,9 @@ private struct JobListRow: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
-            Text(job.payload.text("company").isEmpty ? job.payload.text("title") : job.payload.text("company"))
+            Text(job.payload.text("title").isEmpty ? job.title : job.payload.text("title"))
                 .font(.system(size: 13, weight: .semibold)).foregroundStyle(TaavodPalette.ink).lineLimit(1)
-            Text(job.payload.text("title")).font(.system(size: 12)).foregroundStyle(TaavodPalette.muted).lineLimit(1)
+            Text(job.payload.text("company").isEmpty ? "Company not provided" : job.payload.text("company")).font(.system(size: 12)).foregroundStyle(TaavodPalette.muted).lineLimit(1)
             HStack(spacing: 5) {
                 Text(status.capitalized).font(.system(size: 10, weight: .medium))
                     .padding(.horizontal, 8).padding(.vertical, 4).background(stageFill, in: Capsule())
@@ -173,6 +174,7 @@ private struct JobEditorView: View {
     @State private var company = ""
     @State private var title = ""
     @State private var url = ""
+    @State private var location = ""
     @State private var description = ""
     @State private var stage = "Saved"
     @State private var notes = ""
@@ -188,6 +190,7 @@ private struct JobEditorView: View {
             TextField("Company", text: $company)
                 TextField("Role title", text: $title)
                 TextField("Job link", text: $url)
+                TextField("Location (optional)", text: $location)
                 TextField("Job description (optional)", text: $description, axis: .vertical).lineLimit(4...9)
                 Picker("Stage", selection: $stage) { ForEach(stages, id: \.self) { Text($0) } }
                 Toggle("Set follow-up", isOn: $hasFollowUp)
@@ -198,7 +201,7 @@ private struct JobEditorView: View {
         }
         .onAppear {
             guard let p = editor.record?.payload else { return }
-            company = p.text("company"); title = p.text("title"); url = p.text("url"); description = p.text("description"); stage = p.text("status").isEmpty ? "saved" : p.text("status").capitalized; notes = p.text("notes")
+            company = p.text("company"); title = p.text("title"); url = p.text("url"); location = p.text("location"); description = p.text("description"); stage = p.text("status").isEmpty ? "saved" : p.text("status").capitalized; notes = p.text("notes")
             if let d = p.text("followUpDate").dayDate { followUp = d; hasFollowUp = true }
         }
         .onChange(of: "\(company)\n\(title)\n\(description)\n\(notes)", initial: true) { _, _ in
@@ -225,12 +228,13 @@ private struct JobEditorView: View {
         var patch: [String: JSONValue] = [
             "company": .string(company.trimmingCharacters(in: .whitespacesAndNewlines)),
             "title": .string(title.trimmingCharacters(in: .whitespacesAndNewlines)), "url": .string(trimmedURL),
+            "location": .string(location.trimmingCharacters(in: .whitespacesAndNewlines)),
             "description": .string(description), "canonicalUrl": .string(trimmedURL),
             "status": .string(stage.lowercased()), "notes": .string(notes), "updatedAt": .string(Date.now.ISO8601Format())
         ]
         if editor.record == nil {
             patch.merge([
-                "location": .string(""), "canonicalUrl": .string(trimmedURL), "description": .string(""), "source": .string("Manual"),
+                "source": .string("Manual"),
                 "duplicateUrls": .array([]), "capturedAt": .string(Date.now.ISO8601Format()), "historical": .bool(false),
                 "skills": .array([]), "fitScore": .number(0), "fitReasons": .array([]), "gaps": .array([])
             ]) { _, new in new }
@@ -335,43 +339,46 @@ struct PortfolioView: View {
     @State private var projectTitle = ""
     @State private var evidenceImporter = false
     private var projects: [WorkspaceRecord] { app.store.list("projects").sorted { $0.payload.text("updatedAt") > $1.payload.text("updatedAt") } }
-    private var selected: WorkspaceRecord? { projects.first { $0.id == selectedID } ?? projects.first }
+    private var selected: WorkspaceRecord? { projects.first { $0.id == selectedID } }
     private var readyCount: Int { projects.filter { $0.payload.text("status") == "published" }.count }
 
     var body: some View {
-        HSplitView {
-            VStack(alignment: .leading, spacing: 13) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Portfolio").font(.title2.weight(.semibold))
-                        Text("Projects and proof of your work").font(.callout).foregroundStyle(TaavodPalette.muted)
-                    }
-                    Spacer(minLength: 4)
-                    Button { adding = true } label: {
-                        Image(systemName: "plus").font(.system(size: 14, weight: .semibold)).foregroundStyle(TaavodPalette.ink)
-                            .frame(width: 34, height: 34).background(TaavodPalette.lilac, in: Circle())
-                    }.buttonStyle(.plain).help("Add project")
+        Group {
+            if let project = selected {
+                VStack(alignment: .leading, spacing: 0) {
+                    Button { selectedID = nil; app.selectedRecordID = nil } label: { Label("All projects", systemImage: "chevron.left") }
+                        .buttonStyle(.plain).padding(.horizontal, 26).padding(.top, 18)
+                    ProjectDetail(app: app, project: project, evidenceImporter: $evidenceImporter)
                 }
-                PortfolioProfileCard(profile: app.store.profile)
-                HStack(spacing: 8) {
-                    JobSummaryChip(value: "\(projects.count)", label: "projects", fill: TaavodPalette.peach)
-                    JobSummaryChip(value: "\(readyCount)", label: "ready to share", fill: TaavodPalette.mint)
-                }
-                List(selection: $selectedID) {
-                    Section("Your projects") {
-                        ForEach(projects) { project in PortfolioProjectRow(project: project).tag(project.id) }
+            } else {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Portfolio").font(.title2.weight(.semibold))
+                            Text("Projects and proof of your work").font(.callout).foregroundStyle(TaavodPalette.muted)
+                        }
+                        Spacer(minLength: 4)
+                        Button { adding = true } label: { Label("Add project", systemImage: "plus") }
+                            .buttonStyle(.borderedProminent)
                     }
-                }.listStyle(.sidebar).scrollContentBackground(.hidden)
+                    PortfolioProfileCard(profile: app.store.profile)
+                    HStack(spacing: 8) {
+                        JobSummaryChip(value: "\(projects.count)", label: "projects", fill: TaavodPalette.surface)
+                        JobSummaryChip(value: "\(readyCount)", label: "ready to share", fill: TaavodPalette.surface)
+                    }
+                    if projects.isEmpty {
+                        PortfolioLibraryEmpty(app: app)
+                    } else {
+                        List(selection: $selectedID) {
+                            Section("Your projects") {
+                                ForEach(projects) { project in PortfolioProjectRow(project: project).tag(project.id) }
+                            }
+                        }.listStyle(.inset).scrollContentBackground(.hidden)
+                    }
+                }.padding(24).frame(maxWidth: 900, alignment: .leading).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .padding(.top, 22)
-            .background(TaavodPalette.canvas)
-            .frame(minWidth: 270, idealWidth: 305, maxWidth: 370, maxHeight: .infinity)
-            Group {
-                if let project = selected { ProjectDetail(app: app, project: project, evidenceImporter: $evidenceImporter) }
-                else { PortfolioLibraryEmpty(app: app) }
-            }
-            .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity)
         }
+        .background(TaavodPalette.canvas)
         .alert("New portfolio project", isPresented: $adding) {
             TextField("Project title", text: $projectTitle)
             Button("Cancel", role: .cancel) { projectTitle = "" }
@@ -393,6 +400,7 @@ struct PortfolioView: View {
         .onChange(of: app.route) { _, route in if route == .portfolio, let id = app.selectedRecordID { selectedID = id } }
         .onChange(of: app.selectedRecordID) { _, id in if app.route == .portfolio, let id { selectedID = id } }
         .onChange(of: selectedID) { _, id in if let id { app.selectedRecordID = id } }
+        .onAppear { if app.route == .portfolio { selectedID = app.selectedRecordID } }
     }
 }
 
@@ -580,7 +588,13 @@ private struct ProjectDetail: View {
         }
         .background(TaavodPalette.canvas)
         .fileImporter(isPresented: $evidenceImporter, allowedContentTypes: [.item], allowsMultipleSelection: true) { result in importEvidence(result) }
-        .onAppear { title = project.payload.text("title").isEmpty ? project.payload.text("name") : project.payload.text("title"); description = project.payload.text("description") }
+        .onAppear(perform: loadProject)
+        .onChange(of: project.id) { _, _ in loadProject() }
+    }
+
+    private func loadProject() {
+        title = project.payload.text("title").isEmpty ? project.payload.text("name") : project.payload.text("title")
+        description = project.payload.text("description")
     }
 
     private func importEvidence(_ result: Result<[URL], Error>) {
@@ -693,41 +707,57 @@ struct InterviewsView: View {
     @State private var deadline: Date?
     @State private var savedMessage = false
     @State private var reflection = ""
+    @State private var creating = false
     private var sessions: [WorkspaceRecord] { app.store.list("interviews").sorted { $0.payload.text("createdAt") > $1.payload.text("createdAt") } }
     private var current: WorkspaceRecord? { sessions.first { $0.id == selectedID } }
 
     var body: some View {
-        HSplitView {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Interview practice").font(.title2.weight(.semibold))
-                        Text("Build confidence one answer at a time").font(.callout).foregroundStyle(TaavodPalette.muted)
-                    }
-                    Spacer(minLength: 4)
-                    Button { newSession() } label: {
-                        Image(systemName: "plus").font(.system(size: 14, weight: .semibold)).foregroundStyle(TaavodPalette.ink)
-                            .frame(width: 34, height: 34).background(TaavodPalette.butter, in: Circle())
-                    }.buttonStyle(.plain).help("Start a new practice drill")
+        Group {
+            if let current {
+                VStack(alignment: .leading, spacing: 0) {
+                    Button { selectedID = nil; app.selectedRecordID = nil } label: { Label("All practice", systemImage: "chevron.left") }
+                        .buttonStyle(.plain).padding(.horizontal, 26).padding(.top, 18)
+                    savedSession(current)
                 }
-                HStack(spacing: 8) {
-                    JobSummaryChip(value: "\(sessions.count)", label: "saved drills", fill: TaavodPalette.lilac)
-                    JobSummaryChip(value: "\(sessions.reduce(0) { $0 + (Int($1.payload.text("durationMinutes")) ?? 0) })", label: "minutes", fill: TaavodPalette.mint)
+            } else if creating {
+                VStack(alignment: .leading, spacing: 0) {
+                    Button { creating = false; deadline = nil } label: { Label("All practice", systemImage: "chevron.left") }
+                        .buttonStyle(.plain).padding(.horizontal, 26).padding(.top, 18)
+                    drillEditor
                 }
-                List(selection: $selectedID) {
-                    Section("Practice sessions") {
-                        ForEach(sessions) { session in InterviewSessionRow(session: session).tag(session.id) }
+            } else {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Interview practice").font(.title2.weight(.semibold))
+                            Text("Build confidence one answer at a time").font(.callout).foregroundStyle(TaavodPalette.muted)
+                        }
+                        Spacer()
+                        Button { newSession() } label: { Label("Start a drill", systemImage: "plus") }.buttonStyle(.borderedProminent)
                     }
-                }.listStyle(.sidebar).scrollContentBackground(.hidden)
+                    HStack(spacing: 8) {
+                        JobSummaryChip(value: "\(sessions.count)", label: "saved drills", fill: TaavodPalette.surface)
+                        JobSummaryChip(value: "\(sessions.reduce(0) { $0 + (Int($1.payload.text("durationMinutes")) ?? 0) })", label: "minutes practiced", fill: TaavodPalette.surface)
+                    }
+                    if sessions.isEmpty {
+                        ContentUnavailableView {
+                            Label("Practice your first answer", systemImage: "quote.bubble")
+                        } description: {
+                            Text("Choose a question, time a short answer, and save it to review later.")
+                        } actions: {
+                            Button("Start a drill") { newSession() }.buttonStyle(TaavodPrimaryButton())
+                        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        List(selection: $selectedID) {
+                            Section("Saved sessions") {
+                                ForEach(sessions) { session in InterviewSessionRow(session: session).tag(session.id) }
+                            }
+                        }.listStyle(.inset).scrollContentBackground(.hidden)
+                    }
+                }.padding(24).frame(maxWidth: 900, alignment: .leading).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .padding(.top, 22)
-            .background(TaavodPalette.canvas)
-            .frame(minWidth: 265, idealWidth: 300, maxWidth: 360, maxHeight: .infinity)
-            Group {
-                if let current { savedSession(current) }
-                else { drillEditor }
-            }.frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity).background(TaavodPalette.canvas)
         }
+        .background(TaavodPalette.canvas)
         .alert("Saved", isPresented: $savedMessage) { Button("OK", role: .cancel) { } } message: { Text("Your interview notes were saved in this Mac’s local workspace.") }
         .onChange(of: selectedID) { _, id in reflection = sessions.first { $0.id == id }?.payload.text("reflection") ?? "" }
         .onChange(of: "\(prompt)\n\(answer)\n\(reflection)", initial: true) { _, _ in
@@ -737,6 +767,7 @@ struct InterviewsView: View {
         .onChange(of: app.route) { _, route in if route == .interviews, let id = app.selectedRecordID { selectedID = id } }
         .onChange(of: app.selectedRecordID) { _, id in if app.route == .interviews, let id { selectedID = id } }
         .onChange(of: selectedID) { _, id in if let id { app.selectedRecordID = id } }
+        .onAppear { if app.route == .interviews, let id = app.selectedRecordID { selectedID = id } }
     }
 
     private var drillEditor: some View {
@@ -832,7 +863,7 @@ struct InterviewsView: View {
                     TextEditor(text: $reflection).font(.system(size: 13)).scrollContentBackground(.hidden)
                         .frame(minHeight: 100).padding(10).background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 12))
                     HStack {
-                        Button("Practice this question") { prompt = session.payload.text("prompt"); answer = ""; selectedID = nil; deadline = nil }.buttonStyle(.bordered).controlSize(.small)
+                            Button("Practice this question") { prompt = session.payload.text("prompt"); answer = ""; selectedID = nil; creating = true; deadline = nil }.buttonStyle(.bordered).controlSize(.small)
                         Spacer()
                         Button("Save reflection") { app.store.update("interviews", id: session.id, patch: ["reflection": .string(reflection)]) }.buttonStyle(TaavodPrimaryButton())
                     }
@@ -841,11 +872,11 @@ struct InterviewsView: View {
         }
     }
 
-    private func newSession() { selectedID = nil; answer = ""; reflection = ""; prompt = "Tell me about a dashboard or analysis you built."; deadline = nil }
+    private func newSession() { selectedID = nil; app.selectedRecordID = nil; creating = true; answer = ""; reflection = ""; prompt = "Tell me about a dashboard or analysis you built."; deadline = nil }
     private func saveSession() {
         let id = UUID().uuidString
         app.store.update("interviews", id: id, patch: ["prompt": .string(prompt), "answer": .string(answer), "reflection": .string(""), "durationMinutes": .string(String(Int(duration))), "createdAt": .string(Date.now.ISO8601Format())])
-        selectedID = id; reflection = ""; deadline = nil; savedMessage = true
+        selectedID = id; creating = false; reflection = ""; deadline = nil; savedMessage = true
     }
 }
 
@@ -924,9 +955,7 @@ struct SearchView: View {
                         Section("Lessons") {
                             ForEach(lessonMatches, id: \.lesson.id) { result in
                                 Button {
-                                    app.study.trackID = result.track.id
-                                    app.study.lessonID = result.lesson.id
-                                    app.route = .learn
+                                    app.openLesson(result.lesson, in: result.track)
                                     dismiss()
                                 } label: {
                                     VStack(alignment: .leading, spacing: 4) {
@@ -972,9 +1001,10 @@ struct SearchView: View {
                                         if let exercise = app.tracks.flatMap(\.exercises).first(where: { $0.id == exerciseID }) { app.openExercise(exercise) }
                                         else { app.route = .practice }
                                     case "lessons":
-                                        app.study.lessonID = record.id
-                                        if !record.payload.text("trackId").isEmpty { app.study.trackID = record.payload.text("trackId") }
-                                        app.route = .learn
+                                        if let track = app.tracks.first(where: { $0.lessons.contains(where: { $0.id == record.id }) }),
+                                           let lesson = track.lessons.first(where: { $0.id == record.id }) {
+                                            app.openLesson(lesson, in: track)
+                                        } else { app.route = .learn }
                                     default: app.route = .today
                                     }
                                     if ["jobs", "projects", "interviews"].contains(record.kind) { app.selectedRecordID = record.id }
@@ -1002,53 +1032,114 @@ struct SettingsView: View {
     @State private var showCoachSettings = false
     @State private var name = ""
     @State private var targetRoles = ""
-    @Environment(\.dismiss) private var dismiss
+    private var savedName: String { app.store.profile.text("name") }
+    private var savedRoles: String { app.store.profile.strings("targetRoles").joined(separator: ", ") }
+    private var hasProfileChanges: Bool { name != savedName || targetRoles != savedRoles }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Profile") {
-                    TextField("Name", text: $name)
-                    TextField("Target roles (comma separated)", text: $targetRoles)
-                    Button("Save profile") { app.store.update("profile", id: app.store.profileID, patch: ["name": .string(name), "targetRoles": .array(targetRoles.split(separator: ",").map { .string($0.trimmingCharacters(in: .whitespacesAndNewlines)) })]) }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Settings").font(.system(size: 26, weight: .semibold))
+                    Text("Personalize your workspace and manage local learning tools and data.")
+                        .font(.callout).foregroundStyle(TaavodPalette.muted)
                 }
-                Section("Appearance") {
-                    Picker("Theme", selection: $appearance) { Text("System").tag("system"); Text("Light").tag("light"); Text("Dark").tag("dark") }.pickerStyle(.segmented)
-                }
-                Section("Coach") { Button("Coach settings…") { showCoachSettings = true } }
-                Section("Offline practice packs") {
-                    ForEach(PackKind.allCases) { kind in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(kind == .sql ? "SQL & PostgreSQL" : "Python, pandas & charts")
-                                Text(app.packs.isInstalled(kind) ? "Installed · available offline" : app.packs.sizeLabel(kind) + " · installs when needed")
-                                    .font(.caption).foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            if app.packs.installing == kind { ProgressView(value: app.packs.progress).frame(width: 70); Button("Cancel") { app.packs.cancel() } }
-                            else if app.packs.isInstalled(kind) {
-                                Button("Remove download") { do { app.runner.suspend(); try app.packs.remove(kind) } catch { app.store.error = error.localizedDescription } }
-                                    .disabled(app.runner.isRunning)
-                            } else { Button("Install") { Task { do { try await app.packs.install(kind) } catch is CancellationError {} catch { app.store.error = error.localizedDescription } } }.disabled(app.packs.installing != nil) }
-                        }
+
+                BentoCard {
+                    settingsHeading("Profile", detail: "Used to tailor your workspace and career guidance.", symbol: "person.crop.circle")
+                    LabeledContent("Name") { TextField("Your name", text: $name).textFieldStyle(.roundedBorder).frame(maxWidth: 330) }
+                    LabeledContent("Target roles") { TextField("BI Analyst, Data Analyst…", text: $targetRoles).textFieldStyle(.roundedBorder).frame(maxWidth: 330) }
+                    HStack {
+                        if hasProfileChanges { Button("Discard changes") { loadProfile() }.buttonStyle(.bordered) }
+                        Spacer()
+                        Button("Save profile") { saveProfile() }.buttonStyle(TaavodPrimaryButton()).disabled(!hasProfileChanges)
                     }
                 }
-                Section("Workspace data") {
-                    Text("Your records are stored locally in Application Support/Taavod.").font(.callout).foregroundStyle(.secondary)
-                    HStack { Button("Export JSON…") { makeExport() }; Button("Import JSON…") { importing = true } }
-                    Button("Show local data folder") { NSWorkspace.shared.open(AppPaths.support) }
+
+                BentoCard {
+                    settingsHeading("Appearance", detail: "Choose how Taavod looks on this Mac.", symbol: "circle.lefthalf.filled")
+                    Picker("Theme", selection: $appearance) {
+                        Text("System").tag("system"); Text("Light").tag("light"); Text("Dark").tag("dark")
+                    }.pickerStyle(.segmented).frame(maxWidth: 360)
                 }
-            }
-            .formStyle(.grouped)
-            .navigationTitle("Settings")
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+
+                BentoCard {
+                    settingsHeading("Career coach", detail: "Connect optional services and control coaching preferences.", symbol: "sparkles")
+                    Button("Open coach settings…") { showCoachSettings = true }.buttonStyle(.bordered)
+                }
+
+                BentoCard {
+                    settingsHeading("Offline practice", detail: "Download local runtimes to practice without an internet connection.", symbol: "shippingbox")
+                    ForEach(PackKind.allCases) { kind in
+                        HStack(spacing: 14) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(kind == .sql ? "SQL & PostgreSQL" : "Python, pandas & charts").font(.system(size: 13, weight: .medium))
+                                Text(app.packs.isInstalled(kind) ? "Installed · available offline" : app.packs.sizeLabel(kind) + " · downloads when installed")
+                                    .font(.caption).foregroundStyle(TaavodPalette.muted)
+                            }
+                            Spacer()
+                            if app.packs.installing == kind {
+                                ProgressView(value: app.packs.progress).frame(width: 70)
+                                Button("Cancel download") { app.packs.cancel() }
+                            } else if app.packs.isInstalled(kind) {
+                                Button("Remove download") { do { app.runner.suspend(); try app.packs.remove(kind) } catch { app.store.error = error.localizedDescription } }
+                                    .disabled(app.runner.isRunning)
+                            } else {
+                                Button("Install") { Task { do { try await app.packs.install(kind) } catch is CancellationError {} catch { app.store.error = error.localizedDescription } } }
+                                    .buttonStyle(.bordered).disabled(app.packs.installing != nil)
+                            }
+                        }.padding(.vertical, 7)
+                    }
+                }
+
+                BentoCard {
+                    settingsHeading("Workspace data", detail: "Your records stay on this Mac unless you export them.", symbol: "externaldrive")
+                    HStack(spacing: 10) {
+                        Button("Export workspace…") { makeExport() }.buttonStyle(.borderedProminent)
+                        Button("Import workspace…") { importing = true }.buttonStyle(.bordered)
+                        Button("Show data folder") { NSWorkspace.shared.open(AppPaths.support) }.buttonStyle(.bordered)
+                    }
+                    Text("Exports include saved workspace records. API credentials remain in Keychain and are not included.")
+                        .font(.caption).foregroundStyle(TaavodPalette.muted)
+                }
+            }.padding(24).frame(maxWidth: 720, alignment: .leading).frame(maxWidth: .infinity)
         }
-        .onAppear { name = app.store.profile.text("name"); targetRoles = app.store.profile.strings("targetRoles").joined(separator: ", ") }
+        .background(TaavodPalette.canvas)
+        .foregroundStyle(TaavodPalette.ink)
+        .tint(TaavodPalette.accent)
+        .preferredColorScheme(appearance == "dark" ? .dark : appearance == "system" ? nil : .light)
+        .onAppear(perform: loadProfile)
         .fileImporter(isPresented: $importing, allowedContentTypes: [.json]) { result in importData(result) }
         .fileExporter(isPresented: $exporting, document: exportDocument, contentType: .json, defaultFilename: "taavod-workspace") { result in
             if case .failure(let error) = result { app.store.error = "Could not export workspace: \(error.localizedDescription)" }
         }
         .sheet(isPresented: $showCoachSettings) { CoachSettingsView().frame(width: 580, height: 580) }
+    }
+
+    private func settingsHeading(_ title: String, detail: String, symbol: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: symbol).font(.system(size: 15, weight: .medium)).frame(width: 34, height: 34)
+                .background(TaavodPalette.canvas, in: RoundedRectangle(cornerRadius: 11))
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.system(size: 16, weight: .semibold))
+                Text(detail).font(.system(size: 12)).foregroundStyle(TaavodPalette.muted)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func loadProfile() {
+        name = savedName
+        targetRoles = savedRoles
+    }
+
+    private func saveProfile() {
+        let roles = targetRoles.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+        app.store.update("profile", id: app.store.profileID, patch: [
+            "name": .string(name.trimmingCharacters(in: .whitespacesAndNewlines)),
+            "targetRoles": .array(roles.map(JSONValue.string))
+        ])
+        loadProfile()
     }
 
     private func makeExport() {

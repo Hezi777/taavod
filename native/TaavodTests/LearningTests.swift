@@ -26,3 +26,19 @@ import Testing
     app.openExercise(first)
     #expect(app.study.draft == "SELECT 7 AS learner_answer;")
 }
+
+@Test @MainActor func openingASpecificLessonKeepsTheRequestedDestinationAndSavesDraft() throws {
+    let app = AppModel(store: try WorkspaceStore(inMemory: true))
+    let track = try #require(app.tracks.first)
+    let lesson = try #require(track.lessons.last)
+    app.study.exerciseID = "lesson-navigation-draft"
+    app.study.draft = "SELECT learner_work FROM drafts;"
+
+    app.openLesson(lesson, in: track)
+
+    #expect(app.route == .learn)
+    #expect(app.study.lessonID == lesson.id)
+    #expect(app.study.trackID == track.id)
+    #expect(app.lessonToOpen == lesson.id)
+    #expect(app.store.record("drafts", id: "lesson-navigation-draft")?.payload.text("code") == "SELECT learner_work FROM drafts;")
+}

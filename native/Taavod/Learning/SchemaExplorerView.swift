@@ -59,6 +59,7 @@ private struct Relation: Identifiable {
 
 struct SchemaExplorerView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Bindable var app: AppModel
     private let schema = PagilaSchema.load
     @State private var selectedTable = "actor"
@@ -106,7 +107,7 @@ LIMIT 10;
         guard let schema else { return [] }
         let related = schema.relations.filter { $0.source == activeTable || $0.target == activeTable }
             .map { $0.source == activeTable ? $0.target : $0.source }
-        return Array(Set([activeTable] + related)).sorted()
+        return [activeTable] + Array(Set(related).filter { $0 != activeTable }).sorted()
     }
 
     var body: some View {
@@ -145,7 +146,7 @@ LIMIT 10;
             Picker("Explorer section", selection: $showingQueries) {
                 Text("Schema").tag(false)
                 Text("Sample queries").tag(true)
-            }.pickerStyle(.segmented).frame(width: 210)
+            }.pickerStyle(.segmented).labelsHidden().frame(width: 210)
             Button("Done") { dismiss() }.keyboardShortcut(.cancelAction)
         }
         .padding(16).background(.regularMaterial)
@@ -163,7 +164,9 @@ LIMIT 10;
                         Text(sample.title).font(.callout.weight(.medium))
                             .padding(.horizontal, 12).padding(.vertical, 7)
                             .background(selectedSample == index ? Color.accentColor.opacity(0.14) : Color.clear, in: Capsule())
-                    }.buttonStyle(.plain)
+                    }
+                    .buttonStyle(TaavodPressButtonStyle())
+                    .animation(reduceMotion ? nil : .easeOut(duration: 0.14), value: selectedSample)
                 }
                 Spacer()
                 if app.runner.isRunning { Button("Cancel") { app.runner.cancel(); queryTask?.cancel() }.buttonStyle(.bordered) }
@@ -267,8 +270,16 @@ LIMIT 10;
     }
 
     private func tableList(_ schema: PagilaSchema) -> some View {
-        VStack(spacing: 8) {
-            TextField("Find table", text: $search).textFieldStyle(.roundedBorder).padding(.horizontal, 10).padding(.top, 10)
+        VStack(alignment: .leading, spacing: 9) {
+            HStack {
+                Label("Tables", systemImage: "tablecells").font(.headline)
+                Spacer()
+                Text("\(schema.tables.count)").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 11).padding(.top, 12)
+            TextField("Search tables", text: $search)
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal, 10)
             ScrollView {
                 LazyVStack(spacing: 3) {
                     ForEach(schema.tables.filter { search.isEmpty || $0.localizedCaseInsensitiveContains(search) }, id: \.self) { table in
@@ -279,10 +290,13 @@ LIMIT 10;
                                 Spacer()
                                 Text("\(schema.columns(in: table).count)").font(.caption2).foregroundStyle(.tertiary)
                             }
-                            .padding(.vertical, 7).padding(.horizontal, 9)
+                            .padding(.vertical, 9).padding(.horizontal, 9)
                             .background(table == activeTable ? Color.accentColor.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 8))
                             .contentShape(RoundedRectangle(cornerRadius: 8))
-                        }.buttonStyle(.plain)
+                        }
+                        .buttonStyle(TaavodPressButtonStyle())
+                        .taavodInteractiveCard(cornerRadius: 8)
+                        .accessibilityValue(table == activeTable ? "Selected" : "")
                     }
                 }.padding(.horizontal, 7).padding(.bottom, 8)
             }
@@ -324,7 +338,8 @@ LIMIT 10;
                         .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(name == activeTable ? Color.accentColor.opacity(0.5) : Color.primary.opacity(0.07)))
                         .contentShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(TaavodPressButtonStyle())
+                    .taavodInteractiveCard(cornerRadius: 10)
                     .position(positions[index])
                     .accessibilityLabel("Select table \(name)")
                 }

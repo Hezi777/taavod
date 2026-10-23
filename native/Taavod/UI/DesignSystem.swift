@@ -2,17 +2,17 @@ import SwiftUI
 import AppKit
 
 enum TaavodPalette {
-    static let canvas = adaptive(0xF3F3F1, 0x08090B)
-    static let surface = adaptive(0xFFFFFF, 0x151619)
-    static let sidebar = adaptive(0xFFFFFF, 0x050607)
+    static let canvas = adaptive(0xF5F5F5, 0x000000)
+    static let surface = adaptive(0xFFFFFF, 0x111113)
+    static let sidebar = adaptive(0xFFFFFF, 0x000000)
     static let ink = adaptive(0x17191B, 0xF6F5F1)
-    static let muted = adaptive(0x797B7E, 0xB4B5BA)
+    static let muted = adaptive(0x6E7074, 0xB4B5BA)
     static let line = adaptive(0xE7E7E3, 0x2D2E34)
-    static let lilac = adaptive(0xE8DDF9, 0x252034)
-    static let mint = adaptive(0xD9EEDD, 0x192824)
-    static let peach = adaptive(0xF8DFCC, 0x2D231F)
-    static let butter = adaptive(0xF6EDC5, 0x292719)
-    static let blue = adaptive(0xDFECF4, 0x172431)
+    static let lilac = surface
+    static let mint = surface
+    static let peach = surface
+    static let butter = surface
+    static let blue = surface
     static let accent = adaptive(0x7051D4, 0x9469FF)
     static let charcoal = Color(hex: 0x1C1D20)
 
@@ -51,14 +51,73 @@ struct TaavodCard<Content: View>: View {
 
 struct TaavodPrimaryButton: ButtonStyle {
     var light = false
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label.font(.system(size: 12, weight: .semibold))
             .padding(.horizontal, 17).padding(.vertical, 11)
             .foregroundStyle(light ? TaavodPalette.charcoal : TaavodPalette.surface)
             .background(light ? Color.white : TaavodPalette.ink, in: Capsule())
-            .opacity(configuration.isPressed ? 0.78 : 1)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .opacity(!isEnabled ? 0.4 : configuration.isPressed ? 0.78 : 1)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+struct TaavodPressButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.82 : 1)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+private struct TaavodInteractiveCardModifier: ViewModifier {
+    let cornerRadius: CGFloat
+    @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isHovered = false
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        content
+            .overlay {
+                shape.strokeBorder(
+                    TaavodPalette.accent.opacity(isHovered && isEnabled ? 0.58 : 0),
+                    lineWidth: isHovered && isEnabled ? 1 : 0
+                )
+                .allowsHitTesting(false)
+            }
+            .background {
+                shape.fill(TaavodPalette.ink.opacity(isHovered && isEnabled ? 0.025 : 0))
+                    .allowsHitTesting(false)
+            }
+            .contentShape(shape)
+            .focusEffectDisabled(false)
+            .onHover { hovering in
+                let activeHover = hovering && isEnabled
+                guard isHovered != activeHover else { return }
+                isHovered = activeHover
+                if activeHover { NSCursor.pointingHand.push() }
+                else { NSCursor.pop() }
+            }
+            .onChange(of: isEnabled) { _, enabled in
+                if !enabled && isHovered { NSCursor.pop(); isHovered = false }
+            }
+            .onDisappear {
+                if isHovered { NSCursor.pop(); isHovered = false }
+            }
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.14), value: isHovered)
+    }
+}
+
+extension View {
+    func taavodInteractiveCard(cornerRadius: CGFloat = 18) -> some View {
+        modifier(TaavodInteractiveCardModifier(cornerRadius: cornerRadius))
     }
 }
 
@@ -67,7 +126,7 @@ struct TaavodPortrait: View {
     private static let videoURL = AppPaths.resources.appendingPathComponent("Mascot/FlowHeadScrub.mp4")
     var body: some View {
         GeometryReader { geometry in
-            if geometry.size.width >= 100, FileManager.default.fileExists(atPath: Self.videoURL.path) {
+            if FileManager.default.fileExists(atPath: Self.videoURL.path) {
                 CursorScrubVideo(
                     fileURL: Self.videoURL,
                     trackingArea: .window,

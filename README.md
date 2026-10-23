@@ -59,6 +59,6 @@ Run the test suite from `native/`:
 ./scripts/test.sh
 ```
 
-The current arm64 installer is [Taavod-1.0.0-arm64.dmg](https://github.com/Hezi777/taavod/releases/download/v1.0.0/Taavod-1.0.0-arm64.dmg). It is ad hoc signed and not notarized, so macOS may require allowing it in Privacy & Security before opening. SHA-256: `c7d1f6cab39825f697146f3c4654cd4bec571d2c3b346dff15ff1bb9c20b6828`. See [setup and operation](docs/SETUP.md) for build and packaging steps, [architecture](agent_docs/architecture.md) for privacy boundaries, and [verification](agent_docs/verification.md) for test scope. See [design notes](docs/DESIGN.md) for the visual reference and mascot status.
+The current arm64 installer is [Taavod-1.1.0-arm64.dmg](https://github.com/Hezi777/taavod/releases/download/v1.1.0/Taavod-1.1.0-arm64.dmg). It is ad hoc signed and not notarized, so macOS may require allowing it in Privacy & Security before opening. SHA-256: `1973ca434a8a1e04f24b51697d61561ede3741dd09858a6a3bf56dc968c5730c`. See [setup and operation](docs/SETUP.md) for build and packaging steps, [architecture](agent_docs/architecture.md) for privacy boundaries, and [verification](agent_docs/verification.md) for test scope. See [design notes](docs/DESIGN.md) for the visual reference and mascot status.
 
 This is a private project. No open-source license is granted.

@@ -17,6 +17,22 @@ enum CursorScrubTrackingArea {
     case window
 }
 
+enum CursorScrubMath {
+    static func position(_ point: CGPoint, in bounds: CGRect, axis: CursorScrubAxis, flipped: Bool, reversed: Bool) -> Double {
+        guard bounds.width > 0, bounds.height > 0 else { return 0.5 }
+        let value: CGFloat
+        switch axis {
+        case .horizontal: value = (point.x - bounds.minX) / bounds.width
+        case .vertical: value = flipped ? (point.y - bounds.minY) / bounds.height : (bounds.maxY - point.y) / bounds.height
+        }
+        return min(1, max(0, Double(reversed ? 1 - value : value)))
+    }
+
+    static func advance(from current: Double, toward target: Double, elapsed: TimeInterval) -> Double {
+        current + (target - current) * (1 - pow(1 - 0.22, max(0, elapsed) * 60))
+    }
+}
+
 /// Scrubs a muted, local video as the pointer moves inside this app window.
 ///
 /// Keep source clips intra-frame for responsive seeking. One suitable transcode is:
@@ -81,7 +97,8 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
     @MainActor
     final class Coordinator {
         private weak var view: CursorScrubNSView?
-        private weak var trackedWindow: NSWindow?
+        private weak var trackingView: NSView?
+        private var windowTrackingArea: NSTrackingArea?
         private var fileURL: URL?
         private var axis: CursorScrubAxis = .horizontal
         private var trackingArea: CursorScrubTrackingArea = .component
@@ -93,7 +110,6 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
         private var loadTask: Task<Void, Never>?
         private var activityObservers: [NSObjectProtocol] = []
         private var localMonitor: Any?
-        private var previousMouseMoveSetting: Bool?
         private var scrubTimer: Timer?
         private var lastTick = 0.0
         private var targetPosition = 0.0
@@ -136,7 +152,7 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
         func detach() {
             stopScrubbing()
             removeLocalMonitor()
-            restoreWindowMouseMoveSetting()
+            removeWindowTrackingArea()
             activityObservers.forEach(NotificationCenter.default.removeObserver)
             activityObservers.removeAll()
             loadTask?.cancel()
@@ -241,12 +257,12 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
 
         private func refreshDisplayState() {
             guard let view else { return }
-            let canShowVideo = isReady && displayReady && motionAllowed && !ProcessInfo.processInfo.isLowPowerModeEnabled && appWindowIsActive
-            let canDecodeVideo = player != nil && motionAllowed && !ProcessInfo.processInfo.isLowPowerModeEnabled && appWindowIsActive
+            let canShowVideo = isReady && displayReady && motionAllowed && appWindowIsActive
+            let canDecodeVideo = player != nil && motionAllowed && appWindowIsActive
             view.playerLayer.isHidden = !canDecodeVideo
             view.posterLayer.isHidden = canShowVideo
             if !canDecodeVideo {
-                player?.pause(); stopScrubbing(); removeLocalMonitor(); restoreWindowMouseMoveSetting()
+                player?.pause(); stopScrubbing(); removeLocalMonitor(); removeWindowTrackingArea()
             }
             else { refreshTracking() }
         }
@@ -258,19 +274,25 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
 
         private func refreshTracking() {
             guard let view, let window = view.window,
-                  motionAllowed, !ProcessInfo.processInfo.isLowPowerModeEnabled,
+                  motionAllowed,
                   appWindowIsActive, isReady else {
                 removeLocalMonitor()
-                restoreWindowMouseMoveSetting()
+                removeWindowTrackingArea()
                 stopScrubbing()
                 return
             }
-            if trackedWindow !== window {
-                removeLocalMonitor()
-                restoreWindowMouseMoveSetting()
-                trackedWindow = window
-                previousMouseMoveSetting = window.acceptsMouseMovedEvents
-                window.acceptsMouseMovedEvents = true
+            let ownerView = trackingArea == .window ? window.contentView : view
+            if trackingView !== ownerView {
+                removeWindowTrackingArea()
+                if let ownerView {
+                    let area = NSTrackingArea(rect: .zero,
+                        options: [.mouseMoved, .mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect, .enabledDuringMouseDrag],
+                        owner: view, userInfo: nil)
+                    ownerView.addTrackingArea(area)
+                    trackingView = ownerView
+                    windowTrackingArea = area
+                }
+                updatePointer(window.mouseLocationOutsideOfEventStream)
             }
             guard localMonitor == nil else { return }
             localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved, .leftMouseDown, .leftMouseDragged, .rightMouseDown, .rightMouseDragged]) { [weak self, weak view] event in
@@ -281,26 +303,18 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
         }
 
         private func updatePointer(_ point: NSPoint) {
-            guard motionAllowed, isReady, appWindowIsActive, let view else { return }
-            let normalized: CGFloat
+            guard motionAllowed, isReady, appWindowIsActive, let view, !view.visibleRect.isEmpty else { return }
+            let ownerView: NSView
             switch trackingArea {
             case .component:
-                let localPoint = view.convert(point, from: nil)
-                guard view.bounds.contains(localPoint), view.bounds.width > 0, view.bounds.height > 0 else { return }
-                normalized = axis == .horizontal
-                    ? localPoint.x / view.bounds.width
-                    : localPoint.y / view.bounds.height
+                ownerView = view
+                guard view.bounds.contains(view.convert(point, from: nil)) else { return }
             case .window:
-                guard let contentView = view.window?.contentView,
-                      contentView.bounds.width > 0, contentView.bounds.height > 0 else { return }
-                let localPoint = contentView.convert(point, from: nil)
-                let horizontal = (localPoint.x - contentView.bounds.minX) / contentView.bounds.width
-                let vertical = contentView.isFlipped
-                    ? (localPoint.y - contentView.bounds.minY) / contentView.bounds.height
-                    : (contentView.bounds.maxY - localPoint.y) / contentView.bounds.height
-                normalized = axis == .horizontal ? horizontal : vertical
+                guard let contentView = view.window?.contentView else { return }
+                ownerView = contentView
             }
-            let next = min(1, max(0, Double(reversed ? 1 - normalized : normalized)))
+            let next = CursorScrubMath.position(ownerView.convert(point, from: nil), in: ownerView.bounds,
+                                                axis: axis, flipped: ownerView.isFlipped, reversed: reversed)
             guard abs(next - targetPosition) > 0.0005 else { return }
             targetPosition = next
             startScrubbing()
@@ -309,7 +323,7 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
         private func startScrubbing() {
             guard scrubTimer == nil, motionAllowed, isReady else { return }
             lastTick = ProcessInfo.processInfo.systemUptime
-            let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+            let timer = Timer(timeInterval: 1.0 / (ProcessInfo.processInfo.isLowPowerModeEnabled ? 30.0 : 60.0), repeats: true) { [weak self] _ in
                 MainActor.assumeIsolated { self?.advanceScrub() }
             }
             RunLoop.main.add(timer, forMode: .common)
@@ -321,8 +335,7 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
             let now = ProcessInfo.processInfo.systemUptime
             let delta = min(0.1, max(0, now - lastTick))
             lastTick = now
-            let difference = targetPosition - smoothedPosition
-            smoothedPosition += difference * (1 - exp(-delta / 0.22))
+            smoothedPosition = CursorScrubMath.advance(from: smoothedPosition, toward: targetPosition, elapsed: delta)
             if abs(targetPosition - smoothedPosition) < 0.001 { smoothedPosition = targetPosition }
 
             let safeEnd = max(0, CMTimeGetSeconds(duration) - (1.0 / 30.0))
@@ -375,11 +388,10 @@ private struct CursorScrubVideoHost: NSViewRepresentable {
             localMonitor = nil
         }
 
-        private func restoreWindowMouseMoveSetting() {
-            guard let previousMouseMoveSetting else { return }
-            trackedWindow?.acceptsMouseMovedEvents = previousMouseMoveSetting
-            trackedWindow = nil
-            self.previousMouseMoveSetting = nil
+        private func removeWindowTrackingArea() {
+            if let windowTrackingArea { trackingView?.removeTrackingArea(windowTrackingArea) }
+            windowTrackingArea = nil
+            trackingView = nil
         }
 
         private func installActivityObservers() {
@@ -438,11 +450,7 @@ private final class CursorScrubNSView: NSView {
         onWindowChange?()
     }
 
-    override func updateTrackingAreas() {
-        super.updateTrackingAreas()
-        for area in trackingAreas { removeTrackingArea(area) }
-        addTrackingArea(NSTrackingArea(rect: bounds, options: [.mouseEnteredAndExited, .mouseMoved, .activeInKeyWindow, .inVisibleRect], owner: self, userInfo: nil))
-    }
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
 
     override func mouseMoved(with event: NSEvent) {
         scrubHandler?(event.locationInWindow)

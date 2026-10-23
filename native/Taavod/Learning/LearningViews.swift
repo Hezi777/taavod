@@ -4,6 +4,9 @@ import AppKit
 struct LearnView: View {
     @Bindable var app: AppModel
     @State private var selectedLessonID = ""
+    @State private var screen: Screen = .paths
+
+    private enum Screen { case paths, path, lesson }
 
     private var track: SkillTrack? { app.activeTrack ?? app.tracks.first }
     private var lesson: Lesson? {
@@ -26,138 +29,322 @@ struct LearnView: View {
         let start = min(boundedIndex * perLesson, available.count - 1)
         return Array(available[start..<min(start + perLesson, available.count)])
     }
-    private var lessonExercise: Exercise? { lessonExercises.first }
     private var completed: Set<String> {
         Set(app.store.list("lessons").filter { $0.payload.flag("completed") }.map(\.id))
     }
+    private var totalLessons: Int { app.tracks.reduce(0) { $0 + $1.lessons.count } }
+    private var totalExercises: Int { app.tracks.reduce(0) { $0 + $1.exercises.count } }
 
     var body: some View {
-        VStack(spacing: 0) {
-            coursePicker
-            Divider()
-            HStack(spacing: 0) {
-                lessonRail.frame(width: 218)
-                Divider()
-                lessonContent.frame(maxWidth: .infinity, maxHeight: .infinity)
+        Group {
+            switch screen {
+            case .paths: pathsOverview
+            case .path: pathOverview
+            case .lesson: lessonReader
             }
         }
         .background(TaavodPalette.canvas)
         .onAppear {
             if selectedLessonID.isEmpty { selectedLessonID = app.study.lessonID }
-            if selectedLessonID.isEmpty { selectedLessonID = track?.lessons.first?.id ?? "" }
-            app.study.lessonID = selectedLessonID
+            if selectedLessonID.isEmpty { selectedLessonID = nextLesson(in: track)?.id ?? "" }
+            if app.study.lessonID.isEmpty { app.study.lessonID = selectedLessonID }
+            openRequestedLesson()
         }
         .onChange(of: app.study.trackID) { _, _ in
-            selectedLessonID = track?.lessons.first?.id ?? ""
-            app.study.lessonID = selectedLessonID
+            guard !lessons.contains(where: { $0.id == selectedLessonID }) else { return }
+            selectedLessonID = lessons.first(where: { $0.id == app.study.lessonID })?.id ?? nextLesson(in: track)?.id ?? ""
+            if !selectedLessonID.isEmpty { app.study.lessonID = selectedLessonID }
         }
+        .onChange(of: app.lessonToOpen) { _, _ in openRequestedLesson() }
     }
 
-    private var coursePicker: some View {
-        HStack(alignment: .center, spacing: 18) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("YOUR LEARNING PATHS").font(.caption.weight(.semibold)).tracking(1.1).foregroundStyle(TaavodPalette.muted)
-                Text("Build practical skills").font(.title2.weight(.semibold)).foregroundStyle(TaavodPalette.ink)
-            }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(Array(app.tracks.enumerated()), id: \.element.id) { index, item in
-                        let selected = track?.id == item.id
-                        Button {
-                            app.study.trackID = item.id
-                            selectedLessonID = item.lessons.first?.id ?? ""
-                            app.study.lessonID = selectedLessonID
-                        } label: {
-                            HStack(spacing: 10) {
-                                Image(systemName: item.id == "sql" ? "tablecells" : "chart.bar.xaxis")
-                                    .font(.system(size: 15, weight: .semibold))
-                                    .foregroundStyle(selected ? TaavodPalette.ink : courseTint(index))
-                                    .frame(width: 34, height: 34)
-                                    .background(courseTint(index).opacity(0.45), in: RoundedRectangle(cornerRadius: 11))
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(item.title).font(.subheadline.weight(.semibold)).foregroundStyle(TaavodPalette.ink).lineLimit(1)
-                                    Text("\(item.lessons.count) lessons · \(item.exercises.count) exercises")
-                                        .font(.caption).foregroundStyle(TaavodPalette.muted).lineLimit(1)
-                                }
-                                if selected { Image(systemName: "checkmark.circle.fill").foregroundStyle(TaavodPalette.accent) }
-                            }
-                            .padding(.horizontal, 14).padding(.vertical, 11)
-                            .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(selected ? TaavodPalette.accent.opacity(0.5) : TaavodPalette.line, lineWidth: selected ? 1.5 : 1))
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("\(item.title), \(item.lessons.count) lessons")
+    private var pathsOverview: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 26) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("LEARN", systemImage: "books.vertical")
+                        .font(.caption.weight(.semibold)).tracking(1.2).foregroundStyle(TaavodPalette.accent)
+                    Text("Choose your next skill")
+                        .font(.largeTitle.weight(.semibold)).tracking(-0.7).foregroundStyle(TaavodPalette.ink)
+                    Text("Build practical BI and career skills through short lessons and hands-on practice.")
+                        .font(.body).foregroundStyle(TaavodPalette.muted).fixedSize(horizontal: false, vertical: true)
+                    Text("\(app.tracks.count) paths  ·  \(totalLessons) lessons  ·  \(totalExercises) exercises")
+                        .font(.subheadline.weight(.medium)).foregroundStyle(TaavodPalette.ink)
+                        .padding(.top, 3)
+                }
+                .frame(maxWidth: 900, alignment: .leading)
+
+                if app.tracks.isEmpty {
+                    ContentUnavailableView("Learning paths unavailable", systemImage: "books.vertical",
+                                           description: Text("The curriculum could not be loaded."))
+                } else {
+                    if let track, let next = nextLesson(in: track) {
+                        continueCard(track: track, lesson: next)
                     }
+
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack {
+                            Text("Learning paths").font(.title2.weight(.semibold)).foregroundStyle(TaavodPalette.ink)
+                            Spacer()
+                            Text("Choose a path to see its lessons")
+                                .font(.subheadline).foregroundStyle(TaavodPalette.muted)
+                        }
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 14)], alignment: .leading, spacing: 14) {
+                            ForEach(app.tracks) { item in pathCard(item) }
+                        }
+                    }
+                    .frame(maxWidth: 1100, alignment: .leading)
                 }
             }
-            Label("Saved on this Mac", systemImage: "lock.shield").font(.caption).foregroundStyle(TaavodPalette.muted)
+            .padding(.horizontal, 34).padding(.vertical, 30)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
         }
-        .padding(.horizontal, 30).padding(.vertical, 18)
-        .background(TaavodPalette.canvas)
+        .scrollIndicators(.hidden)
     }
 
-    private func courseTint(_ index: Int) -> Color {
-        [TaavodPalette.mint, TaavodPalette.lilac, TaavodPalette.peach, TaavodPalette.butter][index % 4]
+    private func continueCard(track: SkillTrack, lesson: Lesson) -> some View {
+        Button { openLesson(lesson, in: track) } label: {
+            HStack(spacing: 18) {
+                Image(systemName: pathSymbol(track))
+                    .font(.system(size: 25, weight: .medium))
+                    .foregroundStyle(TaavodPalette.accent)
+                    .frame(width: 58, height: 58)
+                    .background(TaavodPalette.canvas, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("NEXT LESSON")
+                        .font(.caption.weight(.semibold)).tracking(1).foregroundStyle(TaavodPalette.muted)
+                    Text(track.title).font(.headline).foregroundStyle(TaavodPalette.ink)
+                    Text(lesson.title).font(.subheadline).foregroundStyle(TaavodPalette.muted).lineLimit(2)
+                }
+                Spacer(minLength: 12)
+                Label("Open lesson", systemImage: "arrow.right")
+                    .font(.subheadline.weight(.semibold)).foregroundStyle(TaavodPalette.surface)
+                    .padding(.horizontal, 16).padding(.vertical, 11)
+                    .background(TaavodPalette.accent, in: Capsule())
+            }
+            .padding(20)
+            .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(TaavodPalette.line, lineWidth: 0.7))
+            .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        }
+        .buttonStyle(TaavodPressButtonStyle())
+        .taavodInteractiveCard(cornerRadius: 20)
+        .accessibilityHint("Opens \(lesson.title) in \(track.title)")
+        .frame(maxWidth: 900, alignment: .leading)
     }
 
-    private var lessonRail: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            if let track {
-                Text("COURSE OUTLINE").font(.caption.weight(.semibold)).tracking(1).foregroundStyle(TaavodPalette.muted)
-                ProgressView(value: Double(track.lessons.filter { completed.contains($0.id) }.count), total: Double(max(1, track.lessons.count)))
+    private func pathCard(_ item: SkillTrack) -> some View {
+        let completeCount = item.lessons.filter { completed.contains($0.id) }.count
+        return Button { showPath(item) } label: {
+            VStack(alignment: .leading, spacing: 13) {
+                HStack(alignment: .top) {
+                    Image(systemName: pathSymbol(item))
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(TaavodPalette.accent)
+                        .frame(width: 44, height: 44)
+                        .background(TaavodPalette.canvas, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 12, weight: .semibold)).foregroundStyle(TaavodPalette.muted)
+                        .padding(8).background(TaavodPalette.canvas, in: Circle())
+                }
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(item.title).font(.headline).foregroundStyle(TaavodPalette.ink).fixedSize(horizontal: false, vertical: true)
+                    Text(item.description).font(.subheadline).foregroundStyle(TaavodPalette.muted)
+                        .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+                HStack {
+                    Label("\(item.lessons.count) lessons", systemImage: "book.closed")
+                    Text("·").foregroundStyle(TaavodPalette.muted)
+                    Label("\(item.exercises.count) exercises", systemImage: "checkmark.circle")
+                    Spacer(minLength: 0)
+                    Text("\(completeCount)/\(item.lessons.count)")
+                        .font(.caption.weight(.semibold).monospacedDigit()).foregroundStyle(TaavodPalette.ink)
+                }
+                .font(.caption).foregroundStyle(TaavodPalette.muted)
+                ProgressView(value: Double(completeCount), total: Double(max(1, item.lessons.count)))
                     .tint(TaavodPalette.accent)
-                Text("\(track.lessons.filter { completed.contains($0.id) }.count) of \(track.lessons.count) complete")
-                    .font(.caption).foregroundStyle(TaavodPalette.muted)
+                    .accessibilityHidden(true)
             }
-            ScrollView {
-                VStack(spacing: 4) {
-                    ForEach(Array(lessons.enumerated()), id: \.element.id) { index, item in
-                        Button {
-                            selectedLessonID = item.id
-                            app.study.lessonID = item.id
-                            app.study.mode = "learn"
-                        } label: {
-                            HStack(alignment: .top, spacing: 11) {
-                                ZStack {
-                                    Circle().fill(completed.contains(item.id) ? Color.green.opacity(0.16) : Color.primary.opacity(0.06))
-                                    if completed.contains(item.id) {
-                                        Image(systemName: "checkmark").font(.caption.weight(.bold)).foregroundStyle(.green)
-                                    } else {
-                                        Text("\(index + 1)").font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                                    }
-                                }
-                                .frame(width: 26, height: 26)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(item.title).font(.subheadline.weight(.medium)).multilineTextAlignment(.leading)
-                                    Text("\(item.minutes) min").font(.caption).foregroundStyle(.secondary)
-                                }
-                                Spacer(minLength: 0)
-                            }
-                            .padding(10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(lesson?.id == item.id ? TaavodPalette.lilac : .clear, in: RoundedRectangle(cornerRadius: 12))
-                            .contentShape(RoundedRectangle(cornerRadius: 10))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-            if let exercise = lessonExercise {
-                Button {
-                    app.saveDraft()
-                    app.study.lessonID = lesson?.id ?? ""
-                    app.openExercise(exercise)
-                    app.study.mode = "practice"
-                } label: {
-                    Label("Go to practice", systemImage: "arrow.right")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-            }
+            .padding(18).frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+            .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(TaavodPalette.line, lineWidth: 0.7))
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
-        .padding(16)
-        .background(TaavodPalette.surface)
+        .buttonStyle(TaavodPressButtonStyle())
+        .taavodInteractiveCard(cornerRadius: 18)
+        .accessibilityElement(children: .ignore)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel("\(item.title). \(item.lessons.count) lessons, \(item.exercises.count) exercises. \(completeCount) lessons completed.")
+        .accessibilityHint("Opens the path overview")
+    }
+
+    private var pathOverview: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 22) {
+                Button { screen = .paths } label: {
+                    Label("All learning paths", systemImage: "chevron.left")
+                }
+                .buttonStyle(TaavodPressButtonStyle()).foregroundStyle(TaavodPalette.muted)
+
+                if let track {
+                    HStack(alignment: .top, spacing: 18) {
+                        Image(systemName: pathSymbol(track))
+                            .font(.system(size: 27, weight: .medium)).foregroundStyle(TaavodPalette.accent)
+                            .frame(width: 62, height: 62)
+                            .background(TaavodPalette.canvas, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("LEARNING PATH").font(.caption.weight(.semibold)).tracking(1.1).foregroundStyle(TaavodPalette.muted)
+                            Text(track.title).font(.largeTitle.weight(.semibold)).tracking(-0.6).foregroundStyle(TaavodPalette.ink)
+                            Text(track.description).font(.body).foregroundStyle(TaavodPalette.muted).fixedSize(horizontal: false, vertical: true)
+                            HStack(spacing: 15) {
+                                Label("\(track.lessons.count) lessons", systemImage: "book.closed")
+                                Label("\(track.exercises.count) exercises", systemImage: "checkmark.circle")
+                            }.font(.subheadline).foregroundStyle(TaavodPalette.muted).padding(.top, 3)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(22)
+                    .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(TaavodPalette.line, lineWidth: 0.7))
+
+                    let count = track.lessons.filter { completed.contains($0.id) }.count
+                    HStack(spacing: 12) {
+                        ProgressView(value: Double(count), total: Double(max(1, track.lessons.count)))
+                            .tint(TaavodPalette.accent).frame(maxWidth: 220)
+                        Text("\(count) of \(track.lessons.count) lessons complete")
+                            .font(.subheadline.weight(.medium)).foregroundStyle(TaavodPalette.ink)
+                        Spacer()
+                        if let next = nextLesson(in: track) {
+                        Button { openLesson(next, in: track) } label: {
+                                Label(count == track.lessons.count ? "Review path" : "Continue path", systemImage: "arrow.right")
+                        }.buttonStyle(.borderedProminent).tint(TaavodPalette.accent)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Lessons").font(.title2.weight(.semibold)).foregroundStyle(TaavodPalette.ink)
+                        ForEach(Array(track.lessons.enumerated()), id: \.element.id) { index, item in
+                            pathLessonRow(item, index: index, in: track)
+                        }
+                    }
+                    .padding(.top, 8)
+                }
+            }
+            .padding(.horizontal, 34).padding(.vertical, 28)
+            .frame(maxWidth: 980, alignment: .leading).frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+        .scrollIndicators(.hidden)
+    }
+
+    private func pathLessonRow(_ item: Lesson, index: Int, in track: SkillTrack) -> some View {
+        let isComplete = completed.contains(item.id)
+        let isNext = nextLesson(in: track)?.id == item.id && !isComplete
+        return Button { openLesson(item, in: track) } label: {
+            HStack(spacing: 15) {
+                ZStack {
+                    Circle().fill(TaavodPalette.canvas)
+                    if isComplete {
+                        Image(systemName: "checkmark").font(.subheadline.weight(.semibold)).foregroundStyle(TaavodPalette.accent)
+                    } else {
+                        Text("\(index + 1)").font(.subheadline.weight(.semibold).monospacedDigit()).foregroundStyle(TaavodPalette.muted)
+                    }
+                }.frame(width: 38, height: 38)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.title).font(.headline).foregroundStyle(TaavodPalette.ink).multilineTextAlignment(.leading)
+                    HStack(spacing: 10) {
+                        Label("\(item.minutes) min", systemImage: "clock")
+                        Text("\(Self.exercises(for: track, lessonIndex: index).count) exercises")
+                    }.font(.caption).foregroundStyle(TaavodPalette.muted)
+                }
+                Spacer(minLength: 8)
+                if isNext {
+                    Text("NEXT UP").font(.caption2.weight(.semibold)).tracking(0.7).foregroundStyle(TaavodPalette.accent)
+                } else if isComplete {
+                    Text("Complete").font(.caption.weight(.medium)).foregroundStyle(TaavodPalette.muted)
+                }
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(TaavodPalette.muted)
+            }
+            .padding(14).frame(maxWidth: .infinity, alignment: .leading)
+            .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).strokeBorder(isNext ? TaavodPalette.accent.opacity(0.48) : TaavodPalette.line, lineWidth: isNext ? 1 : 0.65))
+            .contentShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+        }
+        .buttonStyle(TaavodPressButtonStyle())
+        .taavodInteractiveCard(cornerRadius: 15)
+        .accessibilityLabel("Lesson \(index + 1), \(item.title), \(item.minutes) minutes, \(isComplete ? "completed" : (isNext ? "next up" : "not completed"))")
+    }
+
+    private var lessonReader: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                Button { screen = .paths } label: { Text("All paths") }
+                    .buttonStyle(TaavodPressButtonStyle()).foregroundStyle(TaavodPalette.muted)
+                Image(systemName: "chevron.right").font(.caption2).foregroundStyle(TaavodPalette.muted)
+                Button { screen = .path } label: { Text(track?.title ?? "Learning path") }
+                    .buttonStyle(TaavodPressButtonStyle()).foregroundStyle(TaavodPalette.muted)
+                Image(systemName: "chevron.right").font(.caption2).foregroundStyle(TaavodPalette.muted)
+                Text(lesson?.title ?? "Lesson").font(.subheadline.weight(.medium)).foregroundStyle(TaavodPalette.ink).lineLimit(1)
+                Spacer()
+                if lesson != nil {
+                    Text("Lesson \(lessonIndex + 1) of \(lessons.count)")
+                        .font(.subheadline.weight(.medium)).foregroundStyle(TaavodPalette.muted)
+                }
+            }
+            .padding(.horizontal, 20).padding(.vertical, 12)
+            Divider()
+            lessonContent.frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    private func openRequestedLesson() {
+        guard let id = app.lessonToOpen, lessons.contains(where: { $0.id == id }) else { return }
+        selectedLessonID = id
+        screen = .lesson
+        app.lessonToOpen = nil
+    }
+
+    private func showPath(_ item: SkillTrack) {
+        app.study.trackID = item.id
+        selectedLessonID = nextLesson(in: item)?.id ?? ""
+        if !selectedLessonID.isEmpty { app.study.lessonID = selectedLessonID }
+        app.study.mode = "learn"
+        screen = .path
+    }
+
+    private func openLesson(_ item: Lesson, in track: SkillTrack) {
+        app.study.trackID = track.id
+        selectedLessonID = item.id
+        app.study.lessonID = item.id
+        app.study.mode = "learn"
+        screen = .lesson
+    }
+
+    private func nextLesson(in track: SkillTrack?) -> Lesson? {
+        guard let track else { return nil }
+        if app.study.trackID == track.id,
+           let saved = track.lessons.first(where: { $0.id == app.study.lessonID }),
+           !completed.contains(saved.id) {
+            return saved
+        }
+        return track.lessons.first(where: { !completed.contains($0.id) }) ?? track.lessons.first
+    }
+
+    private func pathSymbol(_ track: SkillTrack) -> String {
+        switch track.id {
+        case "sql": "tablecells"
+        case "modeling": "shippingbox"
+        case "etl": "arrow.triangle.2.circlepath"
+        case "powerbi": "chart.bar.xaxis"
+        case "excel": "tablecells"
+        case "qlik": "point.3.connected.trianglepath.dotted"
+        case "python": "chevron.left.forwardslash.chevron.right"
+        case "metrics": "chart.xyaxis.line"
+        case "git-ai": "arrow.triangle.branch"
+        case "communication": "bubble.left.and.bubble.right"
+        default: "book.closed"
+        }
     }
 
     private var lessonContent: some View {
@@ -196,7 +383,7 @@ struct LearnView: View {
                                     Label(lesson.takeaway, systemImage: "lightbulb")
                                         .font(.callout.weight(.medium)).foregroundStyle(.primary)
                                         .padding(13).frame(maxWidth: .infinity, alignment: .leading)
-                                        .background(TaavodPalette.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+                                        .background(TaavodPalette.canvas, in: RoundedRectangle(cornerRadius: 12))
                                 }
                             }
                         }
@@ -214,7 +401,7 @@ struct LearnView: View {
                                             Text(item.title).font(.subheadline.weight(.semibold))
                                             Text(item.prompt).font(.callout).lineSpacing(3).lineLimit(5).fixedSize(horizontal: false, vertical: true)
                                             HStack(spacing: 8) {
-                                                Text(item.difficulty.capitalized).padding(.horizontal, 9).padding(.vertical, 5).background(TaavodPalette.mint, in: Capsule())
+                                                Text(item.difficulty.capitalized).padding(.horizontal, 9).padding(.vertical, 5).background(TaavodPalette.canvas, in: Capsule())
                                                 Label("\(item.minutes) min", systemImage: "clock")
                                             }.font(.caption.weight(.medium)).foregroundStyle(TaavodPalette.ink)
                                             Button {
@@ -328,6 +515,10 @@ struct PracticeView: View {
     @State private var writtenAnswer = ""
     @State private var selfReviewChecks: Set<Int> = []
     @State private var packTask: Task<Void, Never>?
+    @State private var instructionsExpanded = false
+    @State private var codeTab: CodeTab = .editor
+
+    private enum CodeTab: String, CaseIterable { case editor = "Code", results = "Results" }
 
     private var exercise: Exercise? { app.activeExercise }
     private var track: SkillTrack? { app.activeTrack }
@@ -352,14 +543,21 @@ struct PracticeView: View {
             topBar
             Divider()
             if let exercise {
-                HStack(spacing: 22) {
-                    promptColumn(exercise)
-                        .frame(width: 350)
+                VStack(alignment: .leading, spacing: 14) {
+                    exerciseInstructions(exercise)
+                    if !isQuiz && !isWritten {
+                        Picker("Practice view", selection: $codeTab) {
+                            ForEach(CodeTab.allCases, id: \.self) { tab in Text(tab.rawValue).tag(tab) }
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(maxWidth: 320)
+                        .accessibilityHint("Switch between your code editor and the latest run results")
+                    }
                     workspace(exercise)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 22))
+                        .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 }
-                .padding(24)
+                .padding(20)
             } else {
                 emptyPractice
             }
@@ -372,7 +570,11 @@ struct PracticeView: View {
                 .accessibilityHidden(true)
         }
         .onAppear { restoreAnswer() }
-        .onChange(of: exercise?.id) { _, _ in flushAndSave(); restoreAnswer(); updateCoachEditorContext() }
+        .onChange(of: exercise?.id) { _, _ in
+            flushAndSave(); restoreAnswer(); updateCoachEditorContext()
+            codeTab = .editor
+            instructionsExpanded = false
+        }
         .onChange(of: writtenAnswer) { _, answer in
             updateCoachEditorContext()
             if isWritten { app.study.draft = answer }
@@ -380,13 +582,14 @@ struct PracticeView: View {
         .onChange(of: selfReviewChecks, initial: true) { _, _ in updateCoachEditorContext() }
         .onChange(of: app.study.draft) { _, _ in scheduleSave() }
         .onDisappear { flushAndSave(); app.coachEditorContext = ""; packTask?.cancel(); app.runner.cancel() }
+        .sheet(isPresented: $showingSchema) { SchemaExplorerView(app: app) }
     }
 
     private var topBar: some View {
         HStack(spacing: 12) {
             Image(systemName: kind == .sql ? "tablecells" : "chart.bar.xaxis")
                 .font(.system(size: 18, weight: .semibold)).foregroundStyle(TaavodPalette.accent)
-                .frame(width: 38, height: 38).background(TaavodPalette.mint, in: RoundedRectangle(cornerRadius: 11))
+                .frame(width: 38, height: 38).background(TaavodPalette.canvas, in: RoundedRectangle(cornerRadius: 11))
             VStack(alignment: .leading, spacing: 2) {
             Text("Practice").font(.headline).foregroundStyle(TaavodPalette.ink)
                 Text("\(track?.title ?? "Choose an exercise") · \(language)").font(.caption).foregroundStyle(.secondary)
@@ -410,66 +613,58 @@ struct PracticeView: View {
         .background(TaavodPalette.surface)
     }
 
-    private func promptColumn(_ exercise: Exercise) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+    private func exerciseInstructions(_ exercise: Exercise) -> some View {
+        DisclosureGroup(isExpanded: $instructionsExpanded) {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(exercise.prompt).font(.body).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
+                if !exercise.hints.isEmpty {
+                    Divider()
                     HStack {
-                        Text(exercise.difficulty.capitalized.uppercased())
-                            .font(.caption2.weight(.bold)).tracking(1).foregroundStyle(TaavodPalette.accent)
+                        Text("Hints").font(.subheadline.weight(.semibold))
                         Spacer()
-                        Label("\(exercise.minutes) min", systemImage: "clock").font(.caption).foregroundStyle(.secondary)
+                        Text("\(min(app.study.hintsUsed, exercise.hints.count)) of \(exercise.hints.count) revealed")
+                            .font(.caption).foregroundStyle(TaavodPalette.muted)
                     }
-                    Text(exercise.title).font(.title2.weight(.bold)).fixedSize(horizontal: false, vertical: true)
-                    Text(exercise.prompt).font(.body).lineSpacing(4).fixedSize(horizontal: false, vertical: true)
-
-                    if !exercise.hints.isEmpty {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Text("NEED A NUDGE?").font(.caption2.weight(.bold)).tracking(1).foregroundStyle(.secondary)
-                                Spacer()
-                                Text("\(min(app.study.hintsUsed, exercise.hints.count))/\(exercise.hints.count) revealed")
-                                    .font(.caption2).foregroundStyle(.tertiary)
-                            }
-                            if app.study.hintsUsed > 0 {
-                                Text(exercise.hints[min(app.study.hintsUsed, exercise.hints.count) - 1])
-                                    .font(.callout).fixedSize(horizontal: false, vertical: true)
-                                    .padding(12).frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.yellow.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-                                    .transition(.opacity.combined(with: .move(edge: .top)))
-                            }
-                            if app.study.hintsUsed < exercise.hints.count {
-                                Button {
-                                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) { app.study.hintsUsed += 1 }
-                                } label: { Label(app.study.hintsUsed == 0 ? "Show a hint" : "Show next hint", systemImage: "lightbulb") }
-                                    .buttonStyle(.plain).font(.callout.weight(.medium)).foregroundStyle(TaavodPalette.accent)
-                            }
-                        }
+                    if app.study.hintsUsed > 0 {
+                        Text(exercise.hints[min(app.study.hintsUsed, exercise.hints.count) - 1])
+                            .font(.callout).fixedSize(horizontal: false, vertical: true)
                     }
-
-                    if let outcome = app.study.outcome {
-                        feedbackPanel(outcome, exercise: exercise)
-                    }
-                    if !exercise.rubric.isEmpty && isWritten {
-                        rubricPanel(exercise)
-                    }
-                    if attemptCount > 0 {
-                        Label("\(attemptCount) saved attempt\(attemptCount == 1 ? "" : "s")", systemImage: "clock.arrow.circlepath")
-                            .font(.caption).foregroundStyle(.tertiary)
+                    if app.study.hintsUsed < exercise.hints.count {
+                        Button {
+                            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.2)) { app.study.hintsUsed += 1 }
+                        } label: { Label(app.study.hintsUsed == 0 ? "Show a hint" : "Show next hint", systemImage: "lightbulb") }
+                            .buttonStyle(.borderless)
                     }
                 }
-                .padding(22)
+                if let outcome = app.study.outcome { feedbackPanel(outcome, exercise: exercise) }
+                if !exercise.rubric.isEmpty && isWritten { rubricPanel(exercise) }
+                HStack(spacing: 16) {
+                    if attemptCount > 0 {
+                        Label("\(attemptCount) saved attempt\(attemptCount == 1 ? "" : "s")", systemImage: "clock.arrow.circlepath")
+                    }
+                    if let lesson = app.activeLesson { Label(lesson.title, systemImage: "book.closed").lineLimit(1) }
+                }
+                .font(.caption).foregroundStyle(TaavodPalette.muted)
             }
-            if let lesson = app.activeLesson {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("FROM THIS LESSON").font(.caption2.weight(.semibold)).tracking(0.8).foregroundStyle(TaavodPalette.muted)
-                    Text(lesson.title).font(.caption).lineLimit(2)
-                }.padding(16)
+            .padding(.top, 10)
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 10) {
+                    Text(exercise.title).font(.title3.weight(.semibold)).foregroundStyle(TaavodPalette.ink)
+                    Spacer()
+                    Text(exercise.difficulty.capitalized)
+                        .font(.caption.weight(.medium)).foregroundStyle(TaavodPalette.muted)
+                    Label("\(exercise.minutes) min", systemImage: "clock")
+                        .font(.caption).foregroundStyle(TaavodPalette.muted)
+                }
+                Text(exercise.prompt).font(.callout).foregroundStyle(TaavodPalette.muted)
+                    .lineLimit(2).fixedSize(horizontal: false, vertical: true)
             }
+            .contentShape(Rectangle())
         }
-        .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 22))
-        .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(TaavodPalette.line))
-        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .padding(16)
+        .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(TaavodPalette.line))
     }
 
     @ViewBuilder private func workspace(_ exercise: Exercise) -> some View {
@@ -479,21 +674,26 @@ struct PracticeView: View {
             } else if isWritten {
                 writtenWorkspace(exercise)
             } else {
-                editorToolbar(exercise)
-                    .zIndex(1)
-                NativeCodeEditor(text: draftBinding, selectedText: selectedTextBinding, findText: $editorFind, language: kind)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .clipped()
-                    .zIndex(0)
+                if codeTab == .editor {
+                    editorToolbar(exercise)
+                        .zIndex(1)
+                    NativeCodeEditor(text: draftBinding, selectedText: selectedTextBinding, findText: $editorFind, language: kind)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
+                        .zIndex(0)
+                } else if let outcome = app.study.outcome {
+                    resultView(outcome).frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    ContentUnavailableView("No results yet", systemImage: "terminal", description: Text("Run your code to see its output here."))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
                 Divider()
                 runtimeBar(exercise)
                     .zIndex(1)
-                if let outcome = app.study.outcome { resultView(outcome) }
             }
         }
         .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 22))
         .clipShape(RoundedRectangle(cornerRadius: 22))
-        .sheet(isPresented: $showingSchema) { SchemaExplorerView(app: app) }
     }
 
     private func editorToolbar(_ exercise: Exercise) -> some View {
@@ -662,50 +862,52 @@ struct PracticeView: View {
     }
 
     private func resultView(_ outcome: PracticeOutcome) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Label("Run output", systemImage: "terminal").font(.subheadline.weight(.semibold))
-                Spacer()
-                if let checks = outcome.checks { Text("\(checks) checks").font(.caption).foregroundStyle(.secondary) }
-            }
-            if let error = outcome.error, !error.isEmpty {
-                Text(error).font(.system(.caption, design: .monospaced)).foregroundStyle(.red)
-                    .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
-            }
-            if let output = outcome.output, !output.isEmpty {
-                ScrollView(.horizontal) {
-                    Text(output).font(.system(size: 12, design: .monospaced)).textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }.frame(maxHeight: 100)
-            }
-            if let results = outcome.results {
-                ForEach(Array(results.enumerated()), id: \.offset) { index, result in
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text(results.count > 1 ? "Result \(index + 1) · \(result.rows.count) rows" : "\(result.rows.count) rows")
-                            .font(.caption.weight(.medium)).foregroundStyle(.secondary)
-                        ScrollView([.horizontal, .vertical]) {
-                            Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 5) {
-                                GridRow {
-                                    ForEach(Array(result.fields.enumerated()), id: \.offset) { _, field in
-                                        Text(field.name).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                                    }
-                                }
-                                ForEach(Array(result.rows.prefix(50).enumerated()), id: \.offset) { _, row in
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Label("Run output", systemImage: "terminal").font(.subheadline.weight(.semibold))
+                    Spacer()
+                    if let checks = outcome.checks { Text("\(checks) checks").font(.caption).foregroundStyle(.secondary) }
+                }
+                if let error = outcome.error, !error.isEmpty {
+                    Text(error).font(.system(.caption, design: .monospaced)).foregroundStyle(.red)
+                        .textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if let output = outcome.output, !output.isEmpty {
+                    ScrollView(.horizontal) {
+                        Text(output).font(.system(size: 12, design: .monospaced)).textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }.frame(maxHeight: 100)
+                }
+                if let results = outcome.results {
+                    ForEach(Array(results.enumerated()), id: \.offset) { index, result in
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(results.count > 1 ? "Result \(index + 1) · \(result.rows.count) rows" : "\(result.rows.count) rows")
+                                .font(.caption.weight(.medium)).foregroundStyle(.secondary)
+                            ScrollView([.horizontal, .vertical]) {
+                                Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 5) {
                                     GridRow {
                                         ForEach(Array(result.fields.enumerated()), id: \.offset) { _, field in
-                                            Text(display(row[field.name])).font(.system(size: 11, design: .monospaced)).textSelection(.enabled)
+                                            Text(field.name).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                                         }
                                     }
-                                }
-                            }.padding(8)
+                                    ForEach(Array(result.rows.prefix(50).enumerated()), id: \.offset) { _, row in
+                                        GridRow {
+                                            ForEach(Array(result.fields.enumerated()), id: \.offset) { _, field in
+                                                Text(display(row[field.name])).font(.system(size: 11, design: .monospaced)).textSelection(.enabled)
+                                            }
+                                        }
+                                    }
+                                }.padding(8)
+                            }
+                            .frame(maxHeight: 150)
+                            .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                         }
-                        .frame(maxHeight: 150)
-                        .background(Color(nsColor: .textBackgroundColor), in: RoundedRectangle(cornerRadius: 8))
                     }
                 }
             }
+            .padding(12).frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(12).frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(nsColor: .controlBackgroundColor))
     }
 
@@ -741,6 +943,7 @@ struct PracticeView: View {
             let result = await app.runner.run(exercise: exercise, code: answer)
             guard let result, app.study.exerciseID == exerciseID else { return }
             app.study.outcome = result
+            codeTab = .results
             if result.passed != nil {
                 app.saveAttempt(result, exercise: exercise, answer: answer, hintsUsed: hintsUsed, mode: mode)
             }

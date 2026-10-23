@@ -22,7 +22,7 @@ The build script generates `Taavod.xcodeproj` from `project.yml` and builds the 
 
 ## Package the app
 
-The current installer is [Taavod-1.0.0-arm64.dmg](https://github.com/Hezi777/taavod/releases/download/v1.0.0/Taavod-1.0.0-arm64.dmg). It is ad hoc signed and not notarized. Its SHA-256 is `c7d1f6cab39825f697146f3c4654cd4bec571d2c3b346dff15ff1bb9c20b6828`.
+The current installer is [Taavod-1.1.0-arm64.dmg](https://github.com/Hezi777/taavod/releases/download/v1.1.0/Taavod-1.1.0-arm64.dmg). It is ad hoc signed and not notarized. Its SHA-256 is `1973ca434a8a1e04f24b51697d61561ede3741dd09858a6a3bf56dc968c5730c`.
 
 To build a new disk image, first build the Release app as above. Packaging requires the macOS command line tools `hdiutil`, `codesign`, `swiftc`, `python3`, and `ditto`, plus the Python packages `ds-store` and `mac-alias`. Then run from the repository root:
 
@@ -31,7 +31,7 @@ python3 -m pip install ds-store mac-alias
 ./native/scripts/package.sh
 ```
 
-The script writes `native/output/Taavod-1.0.0-arm64.dmg` and refuses to overwrite an existing image. The packaged app is ad hoc signed; this process does not notarize it.
+The script writes `native/output/Taavod-1.1.0-arm64.dmg` and refuses to overwrite an existing image. The packaged app is ad hoc signed; this process does not notarize it.
 
 ## Runtime packs
 

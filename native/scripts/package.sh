@@ -5,7 +5,7 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 NATIVE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 APP_SOURCE="$NATIVE_DIR/build/Build/Products/Release/Taavod.app"
 OUTPUT_DIR="$NATIVE_DIR/output"
-DMG_NAME="Taavod-1.0.0-arm64.dmg"
+DMG_NAME="Taavod-1.1.0-arm64.dmg"
 
 for tool in hdiutil codesign swiftc python3 ditto; do
   command -v "$tool" >/dev/null 2>&1 || {

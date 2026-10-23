@@ -24,19 +24,20 @@ struct AppRoot: View {
                     } else if app.route != .practice {
                         Button { toggleCoach() } label: {
                             HStack(spacing: 9) {
-                                TaavodPortrait().frame(width: 34, height: 34).clipShape(Circle())
+                                TaavodPortrait().frame(width: 44, height: 44).clipShape(Circle())
                                 Text("Ask Coach").font(.system(size: 12, weight: .semibold))
                                 Image(systemName: "sparkle").font(.system(size: 12))
                             }.padding(.vertical, 7).padding(.leading, 7).padding(.trailing, 15)
                                 .glassEffect(.regular.interactive(), in: Capsule())
-                        }.buttonStyle(.plain).padding(20).help("Ask about your lesson, code, or next step")
+                        }.buttonStyle(TaavodPressButtonStyle()).padding(20).help("Ask about your lesson, code, or next step")
                     }
                 }
                 if let error = app.store.error, !error.isEmpty {
                     HStack {
                         Image(systemName: "exclamationmark.triangle").foregroundStyle(.orange)
-                        Text(error).font(.callout).frame(maxWidth: .infinity, alignment: .leading)
-                        Button { app.store.error = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
+                        Text(error).font(.callout).fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading)
+                        Button { app.store.error = nil } label: { Image(systemName: "xmark") }
+                            .buttonStyle(.plain).help("Dismiss workspace error").accessibilityLabel("Dismiss workspace error")
                     }.padding(12).background(TaavodPalette.butter)
                 }
             }
@@ -72,15 +73,6 @@ struct AppRoot: View {
                 if !collapsed { Text("Taavod").font(.system(size: 22, weight: .medium)).tracking(-0.9) }
             }.padding(.horizontal, collapsed ? 20 : 22).padding(.top, 17).padding(.bottom, 24)
 
-            Button { searchOpen = true } label: {
-                HStack(spacing: 9) {
-                    Image(systemName: "magnifyingglass").font(.system(size: 14))
-                    if !collapsed { Text("Search").font(.system(size: 12)); Spacer(); Text("⌘ K").font(.system(size: 9)) }
-                }.foregroundStyle(TaavodPalette.muted).padding(.horizontal, 12).frame(height: 36)
-                    .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 9))
-                    .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(TaavodPalette.line.opacity(0.4), lineWidth: 0.5))
-            }.buttonStyle(.plain).padding(.horizontal, 16).padding(.bottom, 23).help("Search your workspace")
-
             if !collapsed { Text("YOUR WORKSPACE").font(.system(size: 9, weight: .semibold)).tracking(1.5).foregroundStyle(TaavodPalette.muted).padding(.horizontal, 24).padding(.bottom, 12) }
             VStack(spacing: 5) {
                 ForEach(AppRoute.allCases) { route in
@@ -101,6 +93,8 @@ struct AppRoot: View {
                         .overlay(RoundedRectangle(cornerRadius: 13).strokeBorder(app.route == route ? TaavodPalette.line : .clear, lineWidth: 0.75))
                         .contentShape(RoundedRectangle(cornerRadius: 13))
                     }.buttonStyle(SidebarButtonStyle()).keyboardShortcut(shortcut(for: route), modifiers: .command)
+                        .accessibilityLabel(route == .today ? "Dashboard" : route.rawValue)
+                        .accessibilityAddTraits(app.route == route ? .isSelected : [])
                         .help(collapsed ? route.rawValue : "")
                 }
             }.padding(.horizontal, 14)
@@ -124,7 +118,7 @@ struct AppRoot: View {
                     }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
                         .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(TaavodPalette.line.opacity(0.6), lineWidth: 0.75))
-                }.buttonStyle(.plain).padding(16)
+                }.buttonStyle(TaavodPressButtonStyle()).taavodInteractiveCard(cornerRadius: 12).padding(16)
             }
             Button { openSettings() } label: {
                 HStack(spacing: 10) {
@@ -139,7 +133,7 @@ struct AppRoot: View {
                         Image(systemName: "chevron.down").font(.system(size: 9))
                     }
                 }.padding(.horizontal, collapsed ? 21 : 22).padding(.vertical, 18)
-            }.buttonStyle(.plain).help("Profile and settings")
+            }.buttonStyle(TaavodPressButtonStyle()).taavodInteractiveCard(cornerRadius: 14).help("Profile and settings")
         }.background(TaavodPalette.sidebar)
     }
 
@@ -147,11 +141,8 @@ struct AppRoot: View {
         HStack(spacing: 17) {
             Button { collapsed.toggle() } label: { Image(systemName: "sidebar.left").font(.system(size: 15)) }
                 .buttonStyle(.plain).foregroundStyle(TaavodPalette.muted).help(collapsed ? "Expand sidebar" : "Collapse sidebar")
-            HStack(spacing: 10) {
-                Image(systemName: "house").font(.system(size: 13)).foregroundStyle(TaavodPalette.muted)
-                Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(TaavodPalette.muted.opacity(0.6))
-                Text(app.route == .today ? "Dashboard" : app.route.rawValue).font(.system(size: 12)).foregroundStyle(TaavodPalette.muted)
-                if app.route == .today { Image(systemName: "chevron.right").font(.system(size: 9)).foregroundStyle(TaavodPalette.muted.opacity(0.6)); Text("Overview").font(.system(size: 11)).padding(.horizontal, 9).padding(.vertical, 5).background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 6)) }
+            if app.route != .today {
+                Text(app.route.rawValue).font(.system(size: 12, weight: .medium)).foregroundStyle(TaavodPalette.muted)
             }
             Spacer()
             Button { searchOpen = true } label: {
@@ -163,6 +154,7 @@ struct AppRoot: View {
                 }.foregroundStyle(TaavodPalette.muted).padding(.horizontal, 12).frame(width: 190, height: 34)
                     .background(TaavodPalette.surface, in: Capsule())
             }.buttonStyle(.plain).keyboardShortcut("k", modifiers: .command)
+                .accessibilityLabel("Search your workspace")
             Button { appearance = colorScheme == .dark ? "light" : "dark" } label: {
                 Image(systemName: colorScheme == .dark ? "sun.max" : "moon").font(.system(size: 14)).frame(width: 30, height: 34)
             }.buttonStyle(.plain).help(colorScheme == .dark ? "Switch to light mode" : "Switch to dark mode")

@@ -23,6 +23,7 @@ import Observation
     var coachExpanded = false
     var search = ""
     var selectedRecordID: String?
+    var lessonToOpen: String?
     var coachEditorContext = ""
     var dashboardHasAppeared = false
     @ObservationIgnored lazy var coach = CoachModel(app: self)
@@ -35,6 +36,15 @@ import Observation
     var activeTrack: SkillTrack? { tracks.first { $0.id == study.trackID } }
     var activeLesson: Lesson? { activeTrack?.lessons.first { $0.id == study.lessonID } }
     var activeExercise: Exercise? { tracks.flatMap(\.exercises).first { $0.id == study.exerciseID } }
+    func openLesson(_ lesson: Lesson, in track: SkillTrack) {
+        if runner.isRunning { runner.cancel() }
+        saveDraft()
+        study.trackID = track.id
+        study.lessonID = lesson.id
+        study.mode = "learn"
+        lessonToOpen = lesson.id
+        route = .learn
+    }
     func openExercise(_ exercise: Exercise) {
         if runner.isRunning { runner.cancel() }
         saveDraft()

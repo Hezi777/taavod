@@ -4,6 +4,7 @@ struct CoachPanel: View {
     let app: AppModel
     @State private var showSettings = false
     @FocusState private var inputFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private var model: CoachModel { app.coach }
 
     var body: some View {
@@ -29,13 +30,12 @@ struct CoachPanel: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
         }
         .sheet(isPresented: $showSettings) { CoachSettingsView().frame(minWidth: 420, minHeight: 460) }
+        .onAppear { inputFocused = true }
     }
 
     private var header: some View {
         HStack(spacing: 11) {
-            SparkMascot(size: 28, mood: model.isSending ? .thinking : (model.error == nil ? .idle : .error))
-                .frame(width: 42, height: 42)
-                .background(TaavodPalette.mint.opacity(0.42), in: Circle())
+            TaavodPortrait().frame(width: 42, height: 42).clipShape(Circle())
             VStack(alignment: .leading, spacing: 3) {
                 Text("Taavod Coach").font(.system(size: 15, weight: .semibold))
                 Text(providerStatus).font(.system(size: 11, weight: .medium)).foregroundStyle(TaavodPalette.muted).lineLimit(1)
@@ -64,7 +64,7 @@ struct CoachPanel: View {
             }
             Button { app.coachOpen = false } label: { headerButton("xmark", help: "Close coach") }
         }
-        .buttonStyle(.plain)
+        .buttonStyle(TaavodPressButtonStyle())
         .padding(.horizontal, 17).padding(.top, 15).padding(.bottom, 12)
     }
 
@@ -77,6 +77,7 @@ struct CoachPanel: View {
             .overlay(Circle().strokeBorder(TaavodPalette.line, lineWidth: 1))
             .contentShape(Circle())
             .help(help)
+            .accessibilityLabel(help)
     }
 
     private var providerStatus: String {
@@ -84,19 +85,27 @@ struct CoachPanel: View {
         return "\(model.credentials.provider.title) · \(model.credentials.model.isEmpty ? "Choose model" : model.credentials.model)\(usage)"
     }
 
+    private var needsSetup: Bool { !model.credentials.keyPresent || model.credentials.model.isEmpty }
+    private var setupDescription: String {
+        model.credentials.keyPresent
+            ? "Choose a model in Coach Settings before starting a conversation."
+            : "Add a provider key and choose a model in Coach Settings to start a conversation."
+    }
+
     private var contextBadge: some View {
         HStack(spacing: 7) {
             Image(systemName: "lock.shield.fill").foregroundStyle(TaavodPalette.accent)
             Text(contextDescription)
-                .lineLimit(1).minimumScaleFactor(0.84)
-            Spacer(minLength: 0)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .font(.system(size: 10, weight: .medium))
+        .font(.system(size: 11, weight: .medium))
         .foregroundStyle(TaavodPalette.muted)
         .padding(.horizontal, 12).padding(.vertical, 8)
-        .background(TaavodPalette.surface, in: Capsule())
-        .overlay(Capsule().strokeBorder(TaavodPalette.line, lineWidth: 1))
+        .background(TaavodPalette.surface, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(TaavodPalette.line, lineWidth: 1))
         .padding(.horizontal, 16).padding(.bottom, 11)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Data sharing. \(contextDescription)")
     }
 
     private var compactConversation: some View {
@@ -113,12 +122,15 @@ struct CoachPanel: View {
                         }.padding(.vertical, 14)
                     }
                     .onChange(of: model.messages.count) { _, _ in
-                        if let last = model.messages.last { withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(last.id, anchor: .bottom) } }
+                        if let last = model.messages.last {
+                            if reduceMotion { proxy.scrollTo(last.id, anchor: .bottom) }
+                            else { withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(last.id, anchor: .bottom) } }
+                        }
                     }
                 }
             }
             HStack(spacing: 6) {
-                Image(systemName: "bubble.left.and.bubble.right").foregroundStyle(TaavodPalette.lilac)
+                Image(systemName: "bubble.left.and.bubble.right").foregroundStyle(TaavodPalette.muted)
                 Text("\(model.messages.count) messages").foregroundStyle(TaavodPalette.muted)
                 Spacer()
                 Button("Open full chat", systemImage: "arrow.up.left.and.arrow.down.right") { app.coachExpanded = true }
@@ -136,13 +148,25 @@ struct CoachPanel: View {
             Text(emptyDescription)
                 .font(.system(size: 12)).foregroundStyle(TaavodPalette.muted)
                 .multilineTextAlignment(.center).frame(maxWidth: 290)
-            VStack(spacing: 7) {
-                ForEach(Array(starterOptions.enumerated()), id: \.offset) { _, item in
-                    starterButton(item.0, prompt: item.1, color: item.2)
+            if needsSetup {
+                VStack(spacing: 8) {
+                    Text(setupDescription)
+                        .font(.system(size: 11)).foregroundStyle(TaavodPalette.muted)
+                        .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+                    Button { showSettings = true } label: { Label("Connect a provider", systemImage: "key") }
+                        .font(.system(size: 12, weight: .semibold)).buttonStyle(TaavodPrimaryButton())
+                        .accessibilityHint("Opens Coach Settings to add a key and choose a model")
                 }
+                .padding(.top, 3)
+            } else {
+                VStack(spacing: 7) {
+                    ForEach(Array(starterOptions.enumerated()), id: \.offset) { _, item in
+                        starterButton(item.0, prompt: item.1, color: item.2)
+                    }
+                }
+                .frame(maxWidth: 290)
+                .padding(.top, 2)
             }
-            .frame(maxWidth: 290)
-            .padding(.top, 2)
         }
         .padding(.horizontal, 22)
     }
@@ -161,7 +185,8 @@ struct CoachPanel: View {
             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(TaavodPalette.line, lineWidth: 1))
             .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(TaavodPressButtonStyle())
+        .taavodInteractiveCard(cornerRadius: 12)
         .disabled(model.isSending)
     }
 
@@ -171,13 +196,7 @@ struct CoachPanel: View {
     }
 
     private var contextDescription: String {
-        switch app.route {
-        case .practice, .learn: "Exercise, draft & selection shared · records on request"
-        case .jobs: "Selected role and editor draft shared · records on request"
-        case .portfolio: "Current project shared · other records on request"
-        case .interviews: "Question and answer draft shared · records on request"
-        case .today: "Progress and current screen shared · records on request"
-        }
+        "Each message includes this screen, learning context, draft, profile and progress. Selected records may be shared; other saved records are retrieved when needed."
     }
 
     private var emptyDescription: String {
@@ -242,7 +261,10 @@ struct CoachPanel: View {
                 .padding(.vertical, 14)
             }
             .onChange(of: model.messages.count) { _, _ in
-                if let last = model.messages.last { withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(last.id, anchor: .bottom) } }
+                if let last = model.messages.last {
+                    if reduceMotion { proxy.scrollTo(last.id, anchor: .bottom) }
+                    else { withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(last.id, anchor: .bottom) } }
+                }
             }
             .onChange(of: model.messages.last?.content) { _, _ in
                 if let last = model.messages.last { proxy.scrollTo(last.id, anchor: .bottom) }
@@ -278,12 +300,19 @@ struct CoachPanel: View {
 
     @ViewBuilder private func errorBanner(_ message: String) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(TaavodPalette.peach)
-            Text(message).font(.system(size: 11)).foregroundStyle(TaavodPalette.ink).lineLimit(3)
+            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(TaavodPalette.ink)
+            Text(message).font(.system(size: 11)).foregroundStyle(TaavodPalette.ink)
+                .fixedSize(horizontal: false, vertical: true).lineLimit(3)
             Spacer(minLength: 2)
-            Button("Retry") { model.retry() }
-                .font(.system(size: 11, weight: .semibold)).foregroundStyle(TaavodPalette.accent)
-                .buttonStyle(.plain).disabled(!model.canRetry)
+            if needsSetup {
+                Button("Open Settings") { showSettings = true }
+                    .font(.system(size: 11, weight: .semibold)).foregroundStyle(TaavodPalette.accent)
+                    .buttonStyle(.plain)
+            } else {
+                Button("Retry") { model.retry() }
+                    .font(.system(size: 11, weight: .semibold)).foregroundStyle(TaavodPalette.accent)
+                    .buttonStyle(.plain).disabled(!model.canRetry)
+            }
         }
         .padding(.horizontal, 11).padding(.vertical, 9)
         .background(TaavodPalette.peach.opacity(0.35), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -312,6 +341,7 @@ struct CoachPanel: View {
             }
             .buttonStyle(.plain).disabled(!model.isSending && model.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .help(model.isSending ? "Stop response" : "Send message")
+            .accessibilityLabel(model.isSending ? "Stop response" : "Send message")
         }
         .padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 13)
         .background(TaavodPalette.canvas.opacity(0.42))
